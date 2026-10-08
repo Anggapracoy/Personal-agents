@@ -9,8 +9,8 @@ export async function GET() {
     || process.env.VERCEL_URL?.trim()
     || "development";
   const response = NextResponse.json({
-    minWrapperVersion: 2,
-    maxWrapperVersion: 2,
+    minWrapperVersion: 3,
+    maxWrapperVersion: 3,
     webBuildId,
     optionalBridgeActions: ["appleConnections"],
   });

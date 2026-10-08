@@ -1,3 +1,5 @@
+import { parseSharedIntakeFiles } from "../../../lib/shared-intake-input";
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { enforceApiQuota } from "../../../lib/api-quota";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../lib/auth/session";
@@ -6,10 +8,6 @@ import { createSharedIntake, type SharedIntakeFile } from "../../../lib/shared-i
 const MAX_FILE_BYTES = 3 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 3 * 1024 * 1024;
 const MAX_FILES = 6;
-
-function validBase64(value: string) {
-  return value.length <= Math.ceil(MAX_FILE_BYTES * 4 / 3) + 8 && /^[A-Za-z0-9+/]*={0,2}$/.test(value);
-}
 
 async function parseMultipart(request: Request) {
   const form = await request.formData();
@@ -29,17 +27,11 @@ async function parseMultipart(request: Request) {
 
 async function parseJson(request: Request) {
   const body = await request.json() as { requestId?: unknown; text?: unknown; url?: unknown; sourceApp?: unknown; files?: unknown };
-  const files = Array.isArray(body.files) ? body.files.slice(0, MAX_FILES).map((raw) => {
-    const file = raw as Record<string, unknown>;
-    const dataBase64 = String(file.dataBase64 ?? "");
-    const size = Number(file.size ?? Math.floor(dataBase64.length * 0.75));
-    if (!validBase64(dataBase64) || !Number.isFinite(size) || size < 0 || size > MAX_FILE_BYTES) throw new Error("A shared file is invalid or larger than 3 MB.");
-    return { name: String(file.name ?? "Shared item").slice(0, 180), mimeType: String(file.mimeType ?? "application/octet-stream").slice(0, 160), size, dataBase64 };
-  }) : [];
+  const files = parseSharedIntakeFiles(body.files);
   return { requestId: typeof body.requestId === "string" && /^[a-zA-Z0-9-]{1,100}$/.test(body.requestId) ? body.requestId : undefined, text: String(body.text ?? ""), url: typeof body.url === "string" ? body.url : undefined, sourceApp: String(body.sourceApp ?? "iPhone"), files };
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const limited = await enforceApiQuota(email, "upload");
@@ -56,3 +48,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "The shared item could not be processed." }, { status: 400 });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 6291456);

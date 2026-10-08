@@ -1,10 +1,11 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { generateDecisionCard } from "../../../lib/agent";
 import { currentUserEmail } from "../../../lib/auth/session";
 import { createTemporalContext } from "../../../lib/temporal";
 import { getLifeProfile } from "../../../lib/life-profile";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const body = await request.json().catch(() => ({})) as { question?: string; userTimeZone?: unknown };
@@ -25,3 +26,5 @@ export async function POST(request: Request) {
       : undefined,
   });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

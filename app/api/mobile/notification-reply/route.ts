@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { createHash } from "node:crypto";
 import { enforceApiQuota } from "../../../../lib/api-quota";
 import { NextResponse } from "next/server";
@@ -23,7 +24,7 @@ const replySchema = z.object({
 }).refine(value => Boolean(value.runId) !== Boolean(value.decisionId));
 
 /** Background notification actions use the same signed-in session as the web app. */
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   const owner = session?.user?.email?.trim().toLowerCase();
   if (!owner) return NextResponse.json({ error: "Sign in to Dash to send your reply." }, { status: 401 });
@@ -68,3 +69,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Your reply could not be confirmed. Try again." }, { status: 503 });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

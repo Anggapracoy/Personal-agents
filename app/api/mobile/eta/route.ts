@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "../../../../auth";
@@ -10,7 +11,7 @@ const etaSchema = z.object({
   minutes: z.number().int().min(0).max(24 * 60).nullable(),
 }).strict();
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   const owner = session?.user?.email?.trim().toLowerCase();
   if (!owner) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
@@ -20,3 +21,5 @@ export async function POST(request: Request) {
   if (result.candidate) await deliverPendingPushNotifications({ownerEmail:owner,includeRecent:true}).catch(()=>undefined);
   return NextResponse.json(result, { headers: { "cache-control": "private, no-store" } });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

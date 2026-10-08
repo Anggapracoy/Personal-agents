@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 
 import { NextResponse } from "next/server";
 import { auth } from "../../../auth";
@@ -11,7 +12,7 @@ export async function GET() {
   return NextResponse.json({ accounts }, { headers: { "cache-control": "no-store" } });
 }
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin connection changes are blocked." }, { status: 403 });
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
@@ -22,7 +23,7 @@ export async function PATCH(request: Request) {
   return NextResponse.json({ updated }, { status: updated ? 200 : 404 });
 }
 
-export async function DELETE(request: Request) {
+async function DELETEHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin connection changes are blocked." }, { status: 403 });
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
@@ -32,3 +33,7 @@ export async function DELETE(request: Request) {
 
   return NextResponse.json({ removed }, { status: removed ? 200 : 404 });
 }
+
+export const PATCH = withRequestBodyLimit(PATCHHandler, 1048576);
+
+export const DELETE = withRequestBodyLimit(DELETEHandler, 1048576);

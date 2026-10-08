@@ -1,9 +1,10 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../../lib/auth/session";
 import { deleteVaultItem, saveVaultItemMetadata } from "../../../../lib/vault";
 import { vaultMetadataSchema } from "../../../../lib/vault-schema";
 
-export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
+async function PUTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const { id } = await context.params;
@@ -20,3 +21,5 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
   if (!await deleteVaultItem(email, id)) return NextResponse.json({ error: "Vault item not found." }, { status: 404 });
   return NextResponse.json({ deleted: true }, { headers: { "cache-control": "private, no-store" } });
 }
+
+export const PUT = withRequestBodyLimit(PUTHandler, 1048576);

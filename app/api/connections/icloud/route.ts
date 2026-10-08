@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 
 import { ICloudConnectionError } from "../../../../lib/mail/icloud-client";
 import { enqueueManualScan } from "../../../../lib/discovery/manual-scan-jobs";
@@ -16,7 +17,7 @@ export async function GET() {
   if (!owner) return NextResponse.json({ error: 'Sign in to Dash first.' }, { status: 401 });
   return NextResponse.json({ accounts: await listICloudAccounts(owner) }, { headers: { 'cache-control': 'private, no-store' } });
 }
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: 'Connection blocked.' }, { status: 403 });
   const owner = await currentUserEmail();
   if (!owner) return NextResponse.json({ error: 'Sign in to Dash first.' }, { status: 401 });
@@ -39,9 +40,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ account, scanQueued }, { headers: { 'cache-control': 'private, no-store' } });
   } catch (error) { return NextResponse.json({ error: error instanceof ICloudConnectionError ? error.message : 'Couldn’t save this connection. Try again in a moment.' }, { status: 400 }); }
 }
-export async function DELETE(request: Request) {
+async function DELETEHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: 'Connection blocked.' }, { status: 403 });
   const owner = await currentUserEmail(); if (!owner) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
   const id = new URL(request.url).searchParams.get('id'); if (!z.string().uuid().safeParse(id).success) return NextResponse.json({ error: 'Invalid account.' }, { status: 400 });
   await disconnectICloudAccount(owner, id!);  return NextResponse.json({ disconnected: true });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 2048);
+
+export const DELETE = withRequestBodyLimit(DELETEHandler, 2048);

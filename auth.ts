@@ -5,7 +5,7 @@ import Google from "next-auth/providers/google";
 import Apple from "next-auth/providers/apple";
 import { verifyAccount } from "./lib/auth/accounts";
 import { upsertConnectedGoogleAccount } from "./lib/auth/google-connections";
-import { isSessionRevoked, newSessionIdentity, revokeSession, sessionIdentity } from "./lib/auth/session-revocation";
+import { isAccountDeletionPending, isSessionRevoked, newSessionIdentity, revokeSession, sessionIdentity } from "./lib/auth/session-revocation";
 
 export const googleAuthEnabled = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
 const appleAuthEnabled = Boolean(process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET);
@@ -61,6 +61,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google' && profile?.email_verified !== true) return false;
+      return Boolean(user.email) && !await isAccountDeletionPending(user.email!);
+    },
     async jwt({ token, account, profile }) {
       if (account) Object.assign(token, newSessionIdentity());
       else {

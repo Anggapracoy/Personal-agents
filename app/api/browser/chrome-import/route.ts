@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { auth } from "../../../../auth";
 import { listLocalChromeProfiles, localChromeImportAvailable, readLocalChromeCookies } from "../../../../lib/browser/chrome-profile-import";
@@ -19,7 +20,7 @@ async function authenticatedUser() {
 export async function GET(request: Request) {
   const userId = await authenticatedUser();
   if (!userId) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-  if (!localChromeImportAvailable(request.url)) return NextResponse.json({ error: "Chrome import is available only from the local Mac app." }, { status: 409 });
+  if (!localChromeImportAvailable(request.url, userId)) return NextResponse.json({ error: "Chrome import is available only from the local Mac app." }, { status: 409 });
   try {
     return NextResponse.json({ profiles: await listLocalChromeProfiles() });
   } catch (error) {
@@ -28,11 +29,11 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const userId = await authenticatedUser();
   if (!userId) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin Chrome import is blocked." }, { status: 403 });
-  if (!localChromeImportAvailable(request.url)) return NextResponse.json({ error: "Chrome import is available only from the local Mac app." }, { status: 409 });
+  if (!localChromeImportAvailable(request.url, userId)) return NextResponse.json({ error: "Chrome import is available only from the local Mac app." }, { status: 409 });
   const body = await request.json().catch(() => ({})) as { profileId?: unknown; domains?: unknown };
   try {
     const imported = await readLocalChromeCookies(body.profileId, body.domains);
@@ -44,3 +45,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

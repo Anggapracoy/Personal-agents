@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../lib/auth/session";
 import { listVaultItems, saveVaultItemMetadata } from "../../../lib/vault";
@@ -9,7 +10,7 @@ export async function GET() {
   return NextResponse.json({ items: await listVaultItems(email) }, { headers: { "cache-control": "private, no-store" } });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = vaultMetadataSchema.safeParse(await request.json().catch(() => null));
@@ -17,3 +18,5 @@ export async function POST(request: Request) {
   const item = await saveVaultItemMetadata({ ownerEmail: email, ...parsed.data });
   return NextResponse.json({ item }, { status: 201, headers: { "cache-control": "private, no-store" } });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

@@ -1,6 +1,6 @@
 # Third-party asset review
 
-Reviewed October 8, 2026. The project's MIT license does not replace third-party licenses or grant trademark rights.
+Reviewed October 8, 2026. The maintainer explicitly chose to retain the existing Apple icons and restaurant photograph in the follow-up review; the unresolved rights below remain disclosed. The project's MIT license does not replace third-party licenses or grant trademark rights.
 
 | Asset group | Evidence in this repository | Review outcome |
 |---|---|---|

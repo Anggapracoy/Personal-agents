@@ -1,11 +1,13 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../lib/auth/session";
 import { sameOrigin } from "../../../lib/http-security";
 import { deleteUserData } from "../../../lib/user-data";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
-export async function DELETE(request: Request) {
+async function DELETEHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin deletion is blocked." }, { status: 403 });
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
@@ -15,3 +17,5 @@ export async function DELETE(request: Request) {
   }
   return NextResponse.json(await deleteUserData(email, { deleteAccount: true }), { headers: { "cache-control": "no-store", "clear-site-data": '"cache"' } });
 }
+
+export const DELETE = withRequestBodyLimit(DELETEHandler, 1048576);

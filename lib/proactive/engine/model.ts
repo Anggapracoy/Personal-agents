@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { discoveryCacheOptions, discoveryInstructions } from '../../discovery/prompt-cache';
 
-export const PROACTIVE_MODEL_ID = 'gpt-6-luna';
+export const PROACTIVE_MODEL_ID = process.env.PROACTIVE_MODEL_ID?.trim() || 'gpt-6-luna';
 const selected = { provider: 'openai' as const, modelId: PROACTIVE_MODEL_ID };
 
 /** Loose safety ceiling against runaway loops; the prompt, not this number, keeps tool use low. */

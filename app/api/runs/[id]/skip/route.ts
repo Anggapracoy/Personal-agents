@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { resumeRun } from "../../../../../lib/harness/resume";
 import { getCloudBrowser } from "../../../../../lib/harness/browser/registry";
@@ -16,7 +17,7 @@ const SKIPPABLE_ATTENTION_TOOLS = new Set([
   "vault_fill_payment",
 ]);
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const body = await request.json().catch(() => ({})) as { actionId?: string };
   const owned = await getOwnedRunSnapshot(id);
@@ -49,3 +50,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   await resumeRun(store, id, sensitiveCategory ? `The user denied the ${sensitiveCategory === "email_send" ? "email send" : "purchase"}. Do not perform or propose it again; finish without that change.` : "The user skipped that request. Try a materially different route.");
   return NextResponse.json(await store.getSnapshot(id), { status: 202 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

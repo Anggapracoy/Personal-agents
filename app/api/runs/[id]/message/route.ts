@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 
 import { normalizeAppleConnections } from "../../../../../lib/apple/connection-context";
 import { enforceApiQuota } from "../../../../../lib/api-quota";
@@ -22,7 +23,7 @@ export const maxDuration = 300;
  * failed, cancelled) or waiting on the user: a new message supersedes whatever
  * the agent was waiting for. Active runs receive durable steering input.
  */
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   return withHarnessTiming("message", id, () => postMessage(request, id));
 }
@@ -105,3 +106,5 @@ async function postMessage(request: Request, id: string) {
   }
   return NextResponse.json(await store.getSnapshot(id), { status: 202 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 6291456);

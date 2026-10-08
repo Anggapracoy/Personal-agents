@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '../../../../auth';
@@ -8,7 +9,7 @@ import { deliverPendingPushNotifications } from '../../../../lib/push-notificati
 const birthdaySchema = z.object({ birthdays: z.array(z.object({ name: z.string().trim().min(1).max(80), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).max(20).default([]) });
 
 /** Contacts supply discovery evidence; there is no wake-time delivery gate. */
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   const owner = session?.user?.email?.trim().toLowerCase();
   if (!owner) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
@@ -19,3 +20,5 @@ export async function POST(request: Request) {
   if (created) await deliverPendingPushNotifications({ownerEmail:owner,includeRecent:true}).catch(()=>undefined);
   return NextResponse.json({ accepted: true, created }, { headers: {'cache-control':'private, no-store'} });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

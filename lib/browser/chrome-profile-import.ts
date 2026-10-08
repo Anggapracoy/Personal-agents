@@ -59,12 +59,13 @@ export function normalizeImportDomains(values: unknown) {
   }))];
 }
 
-export function localChromeImportAvailable(requestUrl?: string) {
+export function localChromeImportAvailable(requestUrl?: string, ownerEmail?: string) {
   if (process.platform !== "darwin") return false;
-  if (process.env.CHROME_PROFILE_IMPORT_LOCAL === "1") return true;
-  if (!requestUrl) return process.env.NODE_ENV !== "production";
+  if (process.env.CHROME_PROFILE_IMPORT_LOCAL !== "1") return false;
+  const operator = process.env.CHROME_PROFILE_IMPORT_OWNER?.trim().toLowerCase();
+  if (!operator || operator !== ownerEmail?.trim().toLowerCase() || !requestUrl) return false;
   const hostname = new URL(requestUrl).hostname;
-  return process.env.NODE_ENV !== "production" && ["localhost", "127.0.0.1", "[::1]", "::1"].includes(hostname);
+  return ["localhost", "127.0.0.1", "[::1]", "::1"].includes(hostname);
 }
 
 export async function listLocalChromeProfiles(): Promise<LocalChromeProfile[]> {

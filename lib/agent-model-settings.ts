@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const agentModelSettingsSchema = z.object({
-  modelId: z.enum(["muse-spark-1.3", "gpt-6-luna", "gpt-6-sol", "gpt-6.1-sol", "claude-sonnet-5-5"]),
+  modelId: z.string().trim().min(1).max(160).regex(/^[A-Za-z0-9_.:/-]+$/),
+  provider: z.enum(['openai', 'anthropic', 'meta']).optional(),
   reasoningEffort: z.enum(["low", "medium", "high"]),
   fastMode: z.boolean().default(false),
   revision: z.number().int().nonnegative(),
@@ -9,5 +10,13 @@ export const agentModelSettingsSchema = z.object({
 export type AgentModelSettings = z.infer<typeof agentModelSettingsSchema>;
 export const defaultAgentModelSettings: AgentModelSettings = { modelId: "gpt-6.1-sol", reasoningEffort: "low", fastMode: false, revision: 0 };
 export function agentModelMetadata(settings: AgentModelSettings) {
-  return { modelProvider: settings.modelId === "muse-spark-1.3" ? "meta" as const : settings.modelId === "claude-sonnet-5-5" ? "anthropic" as const : "openai" as const, modelId: settings.modelId, reasoningEffort: settings.reasoningEffort, fastMode: settings.modelId === "gpt-6-luna" && settings.fastMode };
+  return { modelProvider: settings.provider ?? (settings.modelId === "muse-spark-1.3" ? "meta" as const : settings.modelId.startsWith("claude-") ? "anthropic" as const : "openai" as const), modelId: settings.modelId, reasoningEffort: settings.reasoningEffort, fastMode: settings.modelId === "gpt-6-luna" && settings.fastMode };
+}
+
+export function installationModelSettings(saved: AgentModelSettings): AgentModelSettings {
+  const modelId = process.env.DASH_AGENT_MODEL_ID?.trim() || process.env.OPENAI_AGENT_MODEL?.trim();
+  if (!modelId) return saved;
+  return agentModelSettingsSchema.parse({ ...saved, modelId,
+    provider: process.env.DASH_AGENT_MODEL_ID?.trim() ? (process.env.DASH_AGENT_PROVIDER?.trim() || 'openai') : 'openai',
+  });
 }

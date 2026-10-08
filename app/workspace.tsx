@@ -876,7 +876,8 @@ export default function Workspace({ user: suppliedUser, googleConnected, googleC
       const response = await fetch(action === "account" ? "/api/account" : "/api/account/data", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ confirmation }) });
       if (!response.ok) throw new Error(await responseError(response, action === "account" ? "Your account could not be deleted." : "Your data could not be deleted."));
 
-      if (action === "account") {
+      const deletion = await response.json() as { cleanupPending?: boolean };
+      if (action === "account" || deletion.cleanupPending) {
         messageCache.current.clearSaved(); lifeProfile.clear();
         listCacheCleared.current = true; clearConversationList(user.email);
          await signOut({ callbackUrl: "/", redirect: false });

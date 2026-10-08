@@ -1,3 +1,4 @@
+import { installationNamespace } from "../../installation-identity";
 import { keepControllerAlive } from "./controller-lease";
 import { CHARACTERS, characterIndexFor } from "../../conversation-character";
 import { BrowserPreDispatchError } from "./approval";
@@ -524,7 +525,7 @@ export class BrowserlessCloudBrowserProvider {
       const sandboxes = new Map<string, ControllerSandbox>();
       if (this.account.sandbox) sandboxes.set(this.account.sandbox.sandboxId, this.account.sandbox);
       if (userHash && process.env.E2B_API_KEY) {
-        const listing = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, query: { metadata: { service: "dash-browser-controller", user: userHash }, state: ["running", "paused"] } });
+        const listing = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, query: { metadata: { service: "dash-browser-controller", installation: installationNamespace(), user: userHash }, state: ["running", "paused"] } });
         while (listing.hasNext) {
           for (const item of await listing.nextItems()) {
             if (!sandboxes.has(item.sandboxId)) sandboxes.set(item.sandboxId, await ControllerSandbox.connect(item.sandboxId, { apiKey: process.env.E2B_API_KEY, timeoutMs: 60_000 }));
@@ -542,7 +543,7 @@ export class BrowserlessCloudBrowserProvider {
       if (userHash && process.env.BROWSERLESS_API_TOKEN) {
         const host = process.env.BROWSERLESS_HOST || "production-sfo.browserless.io";
         if (!["production-sfo.browserless.io", "production-lon.browserless.io", "production-ams.browserless.io"].includes(host)) throw new Error("Unsupported Browserless region");
-        const url = new URL(`/profile/dash-${process.env.VERCEL_ENV === "production" ? "prod" : "dev"}-${userHash}`, `https://${host}`);
+        const url = new URL(`/profile/dash-${installationNamespace()}-${userHash}`, `https://${host}`);
         url.searchParams.set("token", process.env.BROWSERLESS_API_TOKEN);
         const response = await fetch(url, { method: "DELETE", signal: AbortSignal.timeout(30_000) });
         if (!response.ok && response.status !== 404) throw new Error(`Browser profile deletion failed (HTTP ${response.status})`);
@@ -651,7 +652,7 @@ export class BrowserlessCloudBrowserProvider {
     if (!process.env.E2B_API_KEY) throw new Error("E2B_API_KEY is not configured");
     if (!process.env.BROWSERLESS_API_TOKEN) throw new Error("BROWSERLESS_API_TOKEN is not configured");
     const listExisting = async () => {
-      const list = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, query: { metadata: { service: "dash-browser-controller", user: userHash }, state: ["running", "paused"] }, limit: 10 });
+      const list = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, query: { metadata: { service: "dash-browser-controller", installation: installationNamespace(), user: userHash }, state: ["running", "paused"] }, limit: 10 });
       return (await list.nextItems()).sort((left, right) => left.startedAt.getTime() - right.startedAt.getTime() || left.sandboxId.localeCompare(right.sandboxId));
     };
     const existing = (await listExisting()).at(0);
@@ -663,7 +664,7 @@ export class BrowserlessCloudBrowserProvider {
       const created = await ControllerSandbox.create({
         apiKey: process.env.E2B_API_KEY,
         timeoutMs: MAX_IDLE_MS,
-        metadata: { service: "dash-browser-controller", user: userHash },
+        metadata: { service: "dash-browser-controller", installation: installationNamespace(), user: userHash },
         allowInternetAccess: true,
         network: { denyOut: PRIVATE_NETWORKS },
         lifecycle: { onTimeout: "pause", autoResume: true },
@@ -729,7 +730,7 @@ export class BrowserlessCloudBrowserProvider {
           DASH_CURSOR_COLOR: await this.conversationCursorColor(),
           BROWSERLESS_API_TOKEN: process.env.BROWSERLESS_API_TOKEN!,
           BROWSERLESS_HOST: process.env.BROWSERLESS_HOST || "production-sfo.browserless.io",
-          BROWSERLESS_PROFILE: `dash-${process.env.VERCEL_ENV === "production" ? "prod" : "dev"}-${this.account.userHash}`,
+          BROWSERLESS_PROFILE: `dash-${installationNamespace()}-${this.account.userHash}`,
           BROWSERLESS_SESSION_TIMEOUT_MS: process.env.BROWSERLESS_SESSION_TIMEOUT_MS || "1800000",
           BROWSERLESS_PROXY_COUNTRY: process.env.BROWSERLESS_PROXY_COUNTRY || "ca",
         },

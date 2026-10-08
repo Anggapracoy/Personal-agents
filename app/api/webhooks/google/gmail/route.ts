@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { dispatchGoogleSourceChange } from "../../../../../lib/google-push-dispatch";
 import {
@@ -9,7 +10,7 @@ import {
 
 export const runtime = "nodejs";
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const expected = process.env.GOOGLE_GMAIL_WEBHOOK_SECRET;
   if (!expected) return NextResponse.json({ error: "Gmail push is not configured." }, { status: 503 });
   if (!secureStringEqual(request.nextUrl.searchParams.get("token"), expected)) {
@@ -37,3 +38,5 @@ export async function POST(request: NextRequest) {
   }));
   return new NextResponse(null, { status: 204 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

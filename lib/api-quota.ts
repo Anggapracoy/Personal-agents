@@ -8,6 +8,7 @@ const policies = {
   waitlist: [[60_000, 5], [3_600_000, 20]],
   reply: [[60_000, 30], [3_600_000, 300]],
   transcription: [[60_000, 20], [3_600_000, 120]],
+  weather: [[60_000, 10], [3_600_000, 100]],
 } as const;
 const memory = new Map<string, { start: number; count: number }>();
 

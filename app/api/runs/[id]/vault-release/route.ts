@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOwnedRunSnapshot } from "../../../../../lib/auth/session";
@@ -16,7 +17,7 @@ const releaseSchema = z.strictObject({
 // The body contains ciphertext for a one-time private key held only inside the
 // current E2B browser sandbox. This request path receives ciphertext only;
 // plaintext never enters the app server, database, action log, or model input.
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const parsed = releaseSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid one-time vault release." }, { status: 400 });
@@ -50,3 +51,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   await resumeRun(store, id, "The user unlocked the requested item on their phone. Call the same fill tool again with identical input; the runtime will inject it.");
   return NextResponse.json(await store.getSnapshot(id));
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

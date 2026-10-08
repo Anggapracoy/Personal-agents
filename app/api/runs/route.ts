@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { publishCreatedRun } from "../../../lib/workspace-state";
 import { seedMessages } from "../../../lib/harness/initial-messages";
 
@@ -34,21 +35,21 @@ export async function GET(request: Request) {
 }
 
 /** Start a new thread. Follow-ups on an existing thread go to POST /api/runs/[id]/message. */
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   let runId: string | undefined;
   return withHarnessTiming("create", () => runId, () => createRun(request, id => { runId = id; }));
 }
 
 async function createRun(request: Request, onCreated: (id: string) => void) {
+  const session = await timeHarnessOperation("auth.session", () => auth());
+  const userId = session?.user?.email?.trim().toLowerCase() ?? null;
+  if (!userId) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const body = await timeHarnessOperation("request.parse", () => request.json().catch(() => ({}))) as { appleConnections?: unknown; decisionId?: string; category?: string; request?: string; title?: string; metadata?: Record<string, unknown>; modelProvider?: string; modelId?: string; reasoningEffort?: string; files?: unknown };
   if (typeof body.request !== "string" || !body.request.trim()) return NextResponse.json({ error: "request is required" }, { status: 400 });
   if (body.request.length > 16000) return NextResponse.json({ error: "Request is too long." }, { status: 400 });
   let files: ReturnType<typeof parseChatFiles>;
   try { files = parseChatFiles(body.files); } catch { return NextResponse.json({ error: "Attach up to 6 valid files, 3 MB total." }, { status: 400 }); }
   if (JSON.stringify(body.metadata ?? {}).length > 1_000_000) return NextResponse.json({ error: "Execution context is too large" }, { status: 413 });
-  const session = await timeHarnessOperation("auth.session", () => auth());
-  const userId = session?.user?.email?.trim().toLowerCase() ?? null;
-  if (!userId) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   // These reads are scoped to the authenticated owner and can overlap access
   // checks. Capture failures now; surface them only if the request is admitted.
   const preparedContext = Promise.all([
@@ -118,3 +119,5 @@ async function createRun(request: Request, onCreated: (id: string) => void) {
   const snapshot = await store.getSnapshot(run.id);
   return timeHarnessOperation("response.serialize", async () => NextResponse.json(snapshot, { status: 201 }));
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 6291456);

@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "../../../../auth";
@@ -27,7 +28,7 @@ const shareSchema = z.object({
 });
 
 /** Starts a conversation straight from the iPhone share sheet, without opening the app. */
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   const owner = session?.user?.email?.trim().toLowerCase();
   if (!owner) return NextResponse.json({ error: "Sign in to Dash to share." }, { status: 401 });
@@ -71,3 +72,5 @@ export async function POST(request: Request) {
   after(() => suggestConversationIdentity(store, run.id, owner).catch(() => undefined));
   return NextResponse.json({ runId: run.id, decisionId }, { status: existing ? 200 : 201, headers: { "cache-control": "private, no-store" } });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 6291456);

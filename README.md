@@ -61,7 +61,7 @@ NEXT_PUBLIC_SUPPORT_EMAIL=your-support-address
 
 Create an empty `dash` database using your PostgreSQL tools. The migration user must be able to create tables, types and the `pgcrypto` extension. Keep `AUTH_SECRET` stable: changing it affects sessions and encrypted application data.
 
-The current main-assistant default is `gpt-6.1-sol`; proactive work uses `gpt-6-luna`. Confirm that your provider account can access the configured models. Main model defaults are in [`lib/agent-model-settings.ts`](lib/agent-model-settings.ts), with saved deployment settings taking precedence. Proactive settings are in [`lib/proactive/engine/model.ts`](lib/proactive/engine/model.ts). There is no user-facing model-admin page, and `OPENAI_AGENT_MODEL` alone does not replace saved/global model selections.
+The current main-assistant default is `gpt-6.1-sol`; proactive work uses `gpt-6-luna`. Confirm that your provider account can access the configured models. Main model defaults are in [`lib/agent-model-settings.ts`](lib/agent-model-settings.ts), with saved deployment settings taking precedence. Proactive settings are in [`lib/proactive/engine/model.ts`](lib/proactive/engine/model.ts). Set `DASH_AGENT_MODEL_ID` and `DASH_AGENT_PROVIDER` to override saved/global main-agent settings. The legacy `OPENAI_AGENT_MODEL` override applies when `DASH_AGENT_MODEL_ID` is empty. Set `PROACTIVE_MODEL_ID` independently for proactive work and `OPENAI_TRANSCRIPTION_MODEL` for voice. Restart after changing these values. Models must support the tool, structured-output and reasoning options used by the selected path; model availability is not verified by a local build. There is no user-facing model-admin page.
 
 ### 3. Configure Google sign-in
 
@@ -84,7 +84,7 @@ The email/password registration endpoint is disabled. Existing local password ac
 node --env-file=.env.local -e 'require("node:child_process").execFileSync("pnpm", ["db:migrate"], {stdio: "inherit"})'
 ```
 
-This loads `DATABASE_URL` into the migration process and runs the migration list in `package.json`. Next.js loads `.env.local` automatically, but a bare `psql` or `pnpm db:migrate` command does not load that file for you.
+This loads `DATABASE_URL` into the migration process and runs the migration list in `package.json`. Each `psql` invocation uses `-X -v ON_ERROR_STOP=1`, so user startup files cannot alter migration behavior and SQL errors stop the sequence. Next.js loads `.env.local` automatically, but a bare `psql` or `pnpm db:migrate` command does not load that file for you.
 
 Use this command for a **new, empty database**. This is an ordered SQL script list, not a migration-tracking framework; the initial migration creates types and tables that cannot simply be recreated. For upgrades, back up the database and apply only the required pending migrations in order. Do not blindly run every file: some numbered migrations are explicitly post-deployment transitions and are excluded from the startup list.
 
@@ -94,7 +94,7 @@ Use this command for a **new, empty database**. This is an ordered SQL script li
 pnpm dev
 ```
 
-Open [localhost:3000](http://localhost:3000) to verify that the landing page loads. Continue with the [iPhone app setup](#iphone-app) below to sign in and use the workspace. The current source does not include a standalone browser login page or a supported browser-only workspace. For a development-only visual preview, `http://localhost:3000/?uiPreview=1` shows sample workspace data; it is not a real account or a working end-to-end setup.
+Open [localhost:3000](http://localhost:3000) to verify that the landing page loads. Continue with the [iPhone app setup](#iphone-app) below to sign in and use the workspace. The browser `/login` page explains the iPhone sign-in flow; it is not a browser-only workspace. For a development-only visual preview, `http://localhost:3000/?uiPreview=1` shows sample workspace data; it is not a real account or a working end-to-end setup.
 
 With no Inngest event key, interactive tasks can execute in the web process. This is useful for initial development, but it does not provide durable scheduled/background work. Keep the web process running and configure Inngest for proactive jobs, schedules and recovery.
 
@@ -183,6 +183,8 @@ pnpm build
 pnpm start
 ```
 
+Apply migrations `0039_deletion_cleanup.sql` and `0040_mobile_handoff_binding.sql` when upgrading an existing installation. Deploy the matching iPhone wrapper version 3; older wrappers cannot complete the new device-bound sign-in flow.
+
 The app requires a Node.js server; it is not a static export. Configure Inngest and scheduled endpoints separately. The optional GitHub deployment workflow registers Inngest only when the repository variable `APP_ORIGIN` is set to your production origin.
 
 Use your own support contact and review the included Terms and Privacy pages for your deployment. They are application content, not a substitute for describing your actual providers and data practices.
@@ -203,7 +205,7 @@ pnpm lint
 pnpm build
 ```
 
-`pnpm test` runs the unit/contract suite. Database and live-provider tests require explicit environment opt-ins and may otherwise be skipped. `pnpm lint` is the TypeScript check. Browser tests use Playwright through `pnpm test:browser`; check their fixtures and server requirements before running. Live evaluation scripts can call paid providers or connected services.
+`pnpm test` runs the unit/contract suite. Database and live-provider tests require explicit environment opt-ins and may otherwise be skipped. `pnpm test:database` runs the PostgreSQL suites against a migrated, disposable local `dash_security_test` database and a separate empty `dash_capacity_test` database; it refuses other hosts/database names. The GitHub CI workflow creates these and runs the checks automatically. `pnpm lint` is the TypeScript check. Browser tests use Playwright through `pnpm test:browser`; check their fixtures and server requirements before running. Live evaluation scripts can call paid providers or connected services.
 
 - `app/`: web UI and API routes.
 - `lib/harness/`: agent execution, tools, persistence, browsing and sandbox support.

@@ -45,7 +45,7 @@ State is always a dot plus text; never colour alone.
 
 Preserve the user-approved original outgoing blue gradient and white text; do not darken message bubbles as part of contrast cleanup. Other normal text targets at least 4.5:1 against its rendered surface. Secondary and tertiary tokens remain readable on the canvas, soft surface and incoming bubbles. Do not lower opacity on enabled text to recreate the retired low-contrast grays. Web foundations live in `app/brand-tokens.css` as `--dash-*`; consumers alias these instead of introducing separate palettes. Native `BrandColor` mirrors the same values.
 
-Authentication, Privacy and Terms share these adaptive foundations. Public legal/auth pages follow system appearance when no explicit app appearance is present. Legal documents retain their editorial layout and 16 px panel corners, with 13 px minimum metadata. The public marketing landing page remains the documented light promotional composition.
+Authentication, Privacy and Terms share these adaptive foundations. The browser sign-in fallback uses the existing editorial legal-page layout, explains that sign-in happens in the iPhone app, and provides a home link rather than a nonfunctional browser login form. Public legal/auth pages follow system appearance when no explicit app appearance is present. Legal documents retain their editorial layout and 16 px panel corners, with 13 px minimum metadata. The public marketing landing page remains the documented light promotional composition.
 
 ## Typography
 

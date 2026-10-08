@@ -92,7 +92,7 @@ test('mobile sign-in preserves the origin for each installation, local and previ
     ['http://localhost:3000', 'http://localhost:3000'],
     ['https://preview.example', 'https://preview.example'],
   ]) {
-    const result = await createMobileGoogleAuthorizationURL(origin + '/api/mobile/auth/start');
+    const result = await createMobileGoogleAuthorizationURL(origin + '/api/mobile/auth/start?handoffChallenge=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     assert.equal(result.searchParams.get('redirect_uri'), expected + '/api/auth/callback/google');
   }
 });

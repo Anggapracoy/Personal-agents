@@ -1,10 +1,11 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { auth } from "../../../../../auth";
 import { exchangeGoogleCode } from "../../../../../lib/auth/google-code-exchange";
 import { upsertConnectedGoogleAccount } from "../../../../../lib/auth/google-connections";
 import { readMobileGoogleConnectionCompletion } from "../../../../../lib/auth/mobile-google-connection-oauth";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const headers = { "cache-control": "no-store" };
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Authentication required." }, { status: 401, headers });
@@ -23,3 +24,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Google connection could not be completed. Start again from your Dash account." }, { status: 400, headers });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

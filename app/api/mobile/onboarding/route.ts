@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../../lib/auth/session";
@@ -18,7 +19,7 @@ export async function GET() {
   });
 }
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const body = await request.json().catch(() => ({})) as { completed?: unknown };
@@ -27,3 +28,5 @@ export async function PATCH(request: Request) {
 
   return NextResponse.json({completed});
 }
+
+export const PATCH = withRequestBodyLimit(PATCHHandler, 1048576);

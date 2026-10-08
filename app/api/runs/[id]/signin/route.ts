@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { transferSignInSession } from "../../../../../lib/harness/signin-handoff";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -41,7 +42,7 @@ function registrable(host: string) {
  * Their session cookies for that site are imported into the cloud browser, the
  * page is reloaded, and the thread resumes. Cookies are never persisted here.
  */
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid sign-in result." }, { status: 400 });
@@ -80,3 +81,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   await resumeRun(store, id, `The user shared their session for ${host}. It was transferred to the cloud browser.${observationPending ? " The page observation failed after transfer; this does not mean sign-in failed." : " The page was reloaded."} Inspect the browser to verify the signed-in state and continue.`);
   return NextResponse.json(await store.getSnapshot(id), { status: 202 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

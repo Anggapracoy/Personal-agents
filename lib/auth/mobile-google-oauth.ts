@@ -2,9 +2,9 @@
 import { googleOAuthOrigin } from "./google-oauth-origin";
 import { createHash, randomBytes } from "node:crypto";
 import { decode, encode } from "next-auth/jwt";
-import { createMobileAuthHandoff } from "./mobile-handoff";
+import { createMobileAuthHandoff, validHandoffChallenge } from "./mobile-handoff";
 import { upsertConnectedGoogleAccount } from "./google-connections";
-import { newSessionIdentity } from "./session-revocation";
+import { isAccountDeletionPending, newSessionIdentity } from "./session-revocation";
 
 const GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -25,6 +25,7 @@ type MobileGoogleState = {
   kind: "mobile-google";
   verifier: string;
   redirectUri: string;
+  handoffChallenge: string;
 };
 
 function configuration() {
@@ -37,6 +38,8 @@ function configuration() {
 
 export async function createMobileGoogleAuthorizationURL(requestUrl: string) {
   const { clientId, authSecret } = configuration();
+  const handoffChallenge = new URL(requestUrl).searchParams.get('handoffChallenge') ?? '';
+  if (!validHandoffChallenge(handoffChallenge)) throw new Error('A device challenge is required.');
   const origin = googleOAuthOrigin(requestUrl);
   const redirectUri = `${origin}/api/auth/callback/google`;
   const verifier = randomBytes(48).toString("base64url");
@@ -45,7 +48,7 @@ export async function createMobileGoogleAuthorizationURL(requestUrl: string) {
     secret: authSecret,
     salt: MOBILE_STATE_SALT,
     maxAge: 10 * 60,
-    token: { kind: "mobile-google", verifier, redirectUri } satisfies MobileGoogleState,
+    token: { kind: "mobile-google", verifier, redirectUri, handoffChallenge } satisfies MobileGoogleState,
   });
   const target = new URL(GOOGLE_AUTHORIZATION_URL);
   target.search = new URLSearchParams({
@@ -71,7 +74,8 @@ async function readMobileGoogleState(value: string) {
     token?.kind !== "mobile-google" ||
     typeof token.verifier !== "string" ||
     !/^[A-Za-z0-9_-]{43,128}$/.test(token.verifier) ||
-    typeof token.redirectUri !== "string"
+    typeof token.redirectUri !== "string" ||
+    typeof token.handoffChallenge !== 'string' || !validHandoffChallenge(token.handoffChallenge)
   ) throw new Error("The mobile Google state is invalid or expired.");
   return token as MobileGoogleState;
 }
@@ -131,7 +135,9 @@ export async function handleMobileGoogleCallback(request: Request) {
       name?: string;
       picture?: string;
     };
-    if (!profile.sub || !profile.email || profile.email_verified === false) return finish("profile");
+    if (!profile.sub || !profile.email || profile.email_verified !== true) return finish("profile");
+
+    if (await isAccountDeletionPending(profile.email)) return finish("deletion_pending");
 
     const accessTokenExpires = Date.now() + (googleToken.expires_in ?? 3600) * 1000;
     await upsertConnectedGoogleAccount({
@@ -161,7 +167,7 @@ export async function handleMobileGoogleCallback(request: Request) {
         accessTokenExpires,
       },
     });
-    const handoff = await createMobileAuthHandoff(sessionToken);
+    const handoff = await createMobileAuthHandoff(sessionToken, state.handoffChallenge);
 
     return new Response(null, {
       status: 302,

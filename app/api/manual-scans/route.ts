@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { enforceApiQuota } from "../../../lib/api-quota";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ job }, { headers: { "cache-control": "private, no-store" } });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const limited = await enforceApiQuota(email, "scan");
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
   return NextResponse.json(queued, { status: queued.created ? 202 : 200 });
 }
 
-export async function DELETE(request: Request) {
+async function DELETEHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const jobId = new URL(request.url).searchParams.get("id")?.trim();
@@ -80,3 +81,7 @@ export async function DELETE(request: Request) {
   }
   return NextResponse.json(result);
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);
+
+export const DELETE = withRequestBodyLimit(DELETEHandler, 1048576);

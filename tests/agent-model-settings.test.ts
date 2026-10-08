@@ -8,7 +8,7 @@ test('shared model settings support the supported models and three reasoning lev
     const settings = agentModelSettingsSchema.parse({ modelId, reasoningEffort, revision: 1 });
     assert.deepEqual(agentModelMetadata(settings), { modelId, reasoningEffort, fastMode: false, modelProvider: modelId === 'muse-spark-1.3' ? 'meta' : modelId === 'claude-sonnet-5-5' ? 'anthropic' : 'openai' });
   }
-  for (const bad of [{ modelId: 'arbitrary-model' }, { modelId: 'gpt-5.6-terra' }, { reasoningEffort: 'xhigh' }, { revision: -1 }]) assert.equal(agentModelSettingsSchema.safeParse({ ...defaultAgentModelSettings, ...bad }).success, false);
+  for (const bad of [{ modelId: 'model with spaces' }, { provider: 'unknown-provider' }, { reasoningEffort: 'xhigh' }, { revision: -1 }]) assert.equal(agentModelSettingsSchema.safeParse({ ...defaultAgentModelSettings, ...bad }).success, false);
 });
 test('fast mode applies only to Luna and old settings default to standard', () => {
   for (const modelId of ['gpt-6-luna', 'gpt-6-sol', 'muse-spark-1.3']) {

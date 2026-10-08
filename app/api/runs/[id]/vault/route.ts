@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOwnedRunSnapshot } from "../../../../../lib/auth/session";
@@ -8,7 +9,7 @@ import { getVaultItemSummary } from "../../../../../lib/vault";
 
 const requestSchema = z.strictObject({ actionId: z.string().uuid(), itemId: z.string().uuid() });
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid device vault item." }, { status: 400 });
@@ -24,3 +25,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: error instanceof Error ? error.message : "That saved item could not be selected." }, { status: 409 });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

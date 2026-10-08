@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUserEmail } from "../../../../lib/auth/session";
@@ -19,7 +20,7 @@ export async function GET() {
   return NextResponse.json(await getLifeProfile(email), { headers: { "cache-control": "private, no-store" } });
 }
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const raw = await request.json().catch(() => null);
@@ -30,3 +31,5 @@ export async function PATCH(request: Request) {
     headers: { "cache-control": "private, no-store" },
   });
 }
+
+export const PATCH = withRequestBodyLimit(PATCHHandler, 1048576);

@@ -85,3 +85,57 @@ test('real Auth.js sessions reject revoked cookies and signout revokes the issue
   await handlers.POST(new NextRequest('http://localhost/api/auth/signout', { method: 'POST', headers: { cookie: `${cookie}; ${csrfCookies}`, 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ csrfToken, callbackUrl: 'http://localhost/' }) }));
   assert.equal(await (await session()).json(), null);
 });
+
+test('provider cleanup failure never rolls back local deletion and a durable retry removes its lock', { skip: !url }, async () => {
+  process.env.DATABASE_URL = url;
+  const previous = { AUTH_SECRET: process.env.AUTH_SECRET, BROWSERLESS_API_TOKEN: process.env.BROWSERLESS_API_TOKEN, E2B_API_KEY: process.env.E2B_API_KEY };
+  process.env.AUTH_SECRET = 'isolated-deletion-outbox-test-secret';
+  process.env.BROWSERLESS_API_TOKEN = 'synthetic-never-sent';
+  process.env.E2B_API_KEY = 'synthetic-never-sent';
+  const db = postgres(url!, { max: 1 });
+  const owner = `outbox-${crypto.randomUUID()}@example.invalid`;
+  const { deleteUserData } = await import('../lib/user-data');
+  const { finishAccountDeletion } = await import('../lib/account-deletion-cleanup');
+  const { isAccountDeletionPending } = await import('../lib/auth/session-revocation');
+  const noProviders = { google: async () => {}, composio: async () => {}, browser: async () => {}, localAccount: async () => {} };
+  try {
+    await db`insert into workspace_states(owner_email,state_json,preferences_json) values (${owner},'{}'::jsonb,'{}'::jsonb)`;
+    await db`insert into proactive_moments(owner_email,kind,place_label,occurred_at) values (${owner},'arrived','Fixture home',now())`;
+    await db`insert into proactive_deliveries(owner_email,local_date,kind) values (${owner},current_date,'now')`;
+    await db`insert into waitlist_entries(email) values (${owner})`;
+    await db`insert into users(email,name,google_access_token,location_lat,preferences_json) values (${owner},'Fixture','obsolete-fixture-token',43,'{"old":"data"}'::jsonb)`;
+    const result = await deleteUserData(owner, { deleteAccount: false }, email => finishAccountDeletion(email, { ...noProviders, browser: async () => { throw new Error('provider offline'); } }));
+    assert.equal(result.cleanupPending, true);
+    for (const table of ['workspace_states','proactive_moments','proactive_deliveries']) assert.equal((await db`select 1 from ${db(table)} where owner_email=${owner}`).length, 0);
+    assert.equal((await db`select 1 from waitlist_entries where email=${owner}`).length, 0);
+    const [legacy] = await db`select google_access_token,location_lat,preferences_json from users where email=${owner}`;
+    assert.equal(legacy.google_access_token, null); assert.equal(legacy.location_lat, null); assert.deepEqual(legacy.preferences_json, {});
+    assert.equal(await isAccountDeletionPending(owner), true);
+    const [job] = await db`select encrypted_payload,attempts from account_deletion_jobs where owner_email=${owner}`;
+    assert.equal(job.attempts, 1); assert.ok(!job.encrypted_payload.includes('browser'));
+    assert.equal(await finishAccountDeletion(owner, noProviders), true);
+    assert.equal(await isAccountDeletionPending(owner), false);
+    assert.equal((await db`select 1 from account_deletion_jobs where owner_email=${owner}`).length, 0);
+  } finally {
+    await db`delete from users where email=${owner}`;
+    await db`delete from account_deletion_jobs where owner_email=${owner}`;
+    await db`delete from auth_revocations where key=${`deleting:${owner}`}`;
+    await db.end();
+    for (const [key, value] of Object.entries(previous)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
+  }
+});
+
+test('a stolen handoff code cannot be redeemed without its device verifier or consume the real attempt', { skip: !url }, async () => {
+  process.env.DATABASE_URL = url;
+  const previous = process.env.AUTH_SECRET;
+  process.env.AUTH_SECRET = 'isolated-device-binding-test-secret';
+  const { createMobileAuthHandoff, consumeMobileAuthHandoff, handoffChallenge } = await import('../lib/auth/mobile-handoff');
+  try {
+    const verifier = 'a'.repeat(43);
+    const code = await createMobileAuthHandoff('synthetic-session', handoffChallenge(verifier)!);
+    assert.equal(await consumeMobileAuthHandoff(code, 'b'.repeat(43)), null);
+    assert.equal(await consumeMobileAuthHandoff(code), null);
+    assert.equal(await consumeMobileAuthHandoff(code, verifier), 'synthetic-session');
+    assert.equal(await consumeMobileAuthHandoff(code, verifier), null);
+  } finally { if (previous === undefined) delete process.env.AUTH_SECRET; else process.env.AUTH_SECRET = previous; }
+});

@@ -97,7 +97,7 @@ let sql: ReturnType<typeof postgres> | undefined;
 export const composioConfigured = () => Boolean(process.env.COMPOSIO_API_KEY);
 export function composioClient() {
   if (!composioConfigured()) throw new Error("More connectors are not available yet.");
-  return client ??= new Composio({ apiKey: process.env.COMPOSIO_API_KEY });
+  return client ??= new Composio({ apiKey: process.env.COMPOSIO_API_KEY, allowTracking: false, disableVersionCheck: true });
 }
 const database = () => {
   if (!process.env.DATABASE_URL) throw new Error("Connector storage is unavailable.");
@@ -128,11 +128,11 @@ export async function setPublicToolkit(email: string, slug: string, enabled: boo
   const db = database();
   await db`update composio_sessions set enabled_toolkits=(select coalesce(jsonb_agg(distinct value),'[]'::jsonb) from jsonb_array_elements_text(enabled_toolkits || ${db.json(enabled ? [slug] : [])}) value where ${enabled} or value <> ${slug}) where owner_email=${owner(email)}`;
 }
-export async function ownedAccounts(email: string) {
+export async function ownedAccounts(email: string, options: { signal?: AbortSignal } = {}) {
   const items = [];
   let cursor: string | undefined;
   do {
-    const page = await composioClient().connectedAccounts.list({ userIds: [connectorUserId(email)], limit: 100, cursor });
+    const page = await composioClient().connectedAccounts.list({ userIds: [connectorUserId(email)], limit: 100, cursor }, options);
     items.push(...page.items);
     cursor = page.nextCursor ?? undefined;
   } while (cursor);

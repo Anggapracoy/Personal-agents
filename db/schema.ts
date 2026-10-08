@@ -143,6 +143,7 @@ export const history = pgTable("history", {
 
 export const mobileAuthHandoffs = pgTable("mobile_auth_handoffs", {
   codeHash: text("code_hash").primaryKey(),
+  codeChallenge: text("code_challenge"),
   encryptedSessionToken: text("encrypted_session_token").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   consumedAt: timestamp("consumed_at", { withTimezone: true }),

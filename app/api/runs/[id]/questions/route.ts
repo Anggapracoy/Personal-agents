@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { threadItems } from "../../../../../lib/harness/thread";
 import { NextResponse } from "next/server";
 import { resumeRun } from "../../../../../lib/harness/resume";
@@ -10,7 +11,7 @@ import {
 import { getRunStore } from "../../../../../lib/harness/store";
 import { getOwnedRunSnapshot } from "../../../../../lib/auth/session";
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const parsedRequest = answerQuestionsInputSchema.safeParse(await request.json().catch(() => null));
   if (!parsedRequest.success) return NextResponse.json({ error: "Answer every question before continuing." }, { status: 400 });
@@ -72,3 +73,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const snapshot = await store.getSnapshot(id);
   return NextResponse.json(snapshot ? { ...snapshot, threadItems: threadItems(snapshot, await store.listMessages(id)) } : snapshot, { status: 202 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

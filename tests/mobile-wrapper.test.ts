@@ -16,8 +16,8 @@ test("mobile wrapper configuration publishes an explicit compatibility range", a
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "no-store");
   const body = await response.json() as Record<string, unknown>;
-  assert.equal(body.minWrapperVersion, 2);
-  assert.equal(body.maxWrapperVersion, 2);
+  assert.equal(body.minWrapperVersion, 3);
+  assert.equal(body.maxWrapperVersion, 3);
   assert.equal(typeof body.webBuildId, "string");
   assert.notEqual(body.webBuildId, "");
 });
@@ -44,7 +44,7 @@ test("mobile Google OAuth carries encrypted PKCE state without a browser cookie"
   process.env.AUTH_SECRET = "test-auth-secret-with-enough-entropy";
   try {
     const { createMobileGoogleAuthorizationURL } = await import("../lib/auth/mobile-google-oauth");
-    const target = await createMobileGoogleAuthorizationURL("https://staging.example.test/api/mobile/auth/start?provider=google");
+    const target = await createMobileGoogleAuthorizationURL("https://staging.example.test/api/mobile/auth/start?provider=google&handoffChallenge=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     assert.equal(target.origin, "https://accounts.google.com");
     assert.equal(target.searchParams.get("redirect_uri"), "https://staging.example.test/api/auth/callback/google");
     assert.equal(target.searchParams.get("code_challenge_method"), "S256");

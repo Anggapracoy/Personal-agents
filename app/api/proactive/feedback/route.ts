@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { recordOpportunityFeedback } from "../../../../lib/proactive/opportunities";
 import { proactivePublicationAllowed } from "../../../../lib/proactive/morning-access";
 import { getDb } from "../../../../db";
@@ -15,7 +16,7 @@ const feedbackSchema = z.object({
 }).strict();
 
 /** Yes and no on suggestions teach Dash. The card's category, topic and sender come from the server copy. */
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = feedbackSchema.safeParse(await request.json().catch(() => null));
@@ -34,3 +35,5 @@ export async function POST(request: Request) {
   });
   return NextResponse.json({ recorded });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

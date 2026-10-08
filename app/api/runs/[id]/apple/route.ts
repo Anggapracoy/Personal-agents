@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOwnedRunSnapshot } from "../../../../../lib/auth/session";
@@ -9,7 +10,7 @@ const schema = z.discriminatedUnion("phase", [
   z.object({ phase: z.literal("claim"), actionId: z.string().uuid() }).strict(),
   z.object({ phase: z.literal("complete"), actionId: z.string().uuid(), token: z.string().uuid(), result: z.record(z.string(), z.unknown()) }).strict(),
 ]);
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin actions are blocked." }, { status: 403 });
   const { id } = await context.params;
   if (!z.string().uuid().safeParse(id).success) return NextResponse.json({ error: "Invalid conversation." }, { status: 400 });
@@ -36,3 +37,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: error instanceof Error ? error.message : "The iPhone action could not finish." }, { status: 409 });
   }
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

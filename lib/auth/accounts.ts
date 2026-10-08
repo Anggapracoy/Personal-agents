@@ -84,7 +84,7 @@ export async function removeLocalAccount(emailInput: string) {
   const email = normalizeEmail(emailInput);
   return serialized(async () => {
     const accounts = await readAccounts();
-    await writeAccounts(accounts.filter((account) => account.email !== email));
+    if (accounts.some(account => account.email === email)) await writeAccounts(accounts.filter((account) => account.email !== email));
   });
 }
 

@@ -268,7 +268,7 @@ test("manual scans remain durable after the app closes and progressively save di
   assert.match(route, /claimQueuedManualScanForRedispatch/);
   assert.match(route, /failExpiredManualScan/);
   assert.match(route, /status: queued\.created \? 202 : 200/);
-  assert.match(route, /export async function DELETE/);
+  assert.match(route, /export const DELETE = withRequestBodyLimit/);
   assert.match(route, /cancelManualScan\(email, jobId\)/);
   assert.match(route, /decision-feed\/manual\.scan\.cancelled/);
   assert.match(jobs, /onConflictDoNothing\(\{ target: manualScanJobs\.activeKey \}\)/);
@@ -369,7 +369,7 @@ test("concurrent agent runs keep separate tabs inside the persistent account bro
 test("imports explicitly selected local Chrome sessions into the persistent Browserless profile", async () => {
   const [route, importer, cloud, controller] = await readAll("app/api/browser/chrome-import/route.ts", "lib/browser/chrome-profile-import.ts", "lib/harness/browser/cloud.ts", "lib/harness/browser/cloud-controller.ts");
   assert.match(route, /sameOrigin\(request\)/);
-  assert.match(route, /localChromeImportAvailable\(request\.url\)/);
+  assert.match(route, /localChromeImportAvailable\(request\.url, userId\)/);
   assert.match(route, /getCloudBrowser\(userId\)\.importCookies/);
   assert.match(importer, /Chrome Safe Storage/);
   assert.match(importer, /mkdtemp/);
@@ -883,10 +883,11 @@ test("account deletion disconnects sources and permanently deletes user data wit
   for (const table of ["agent_runs", "manual_scan_jobs", "push_device_tokens", "shared_intakes", "consumer_vault_items", "life_facts", "user_life_profiles", "workspace_states", "mobile_user_states", "history", "running_tasks", "decisions", "users"]) {
     assert.match(deletion, new RegExp(`delete from ${table}`));
   }
-  assert.match(deletion, /removeAllGoogleConnections/);
+  assert.match(deletion, /account_deletion_jobs/);
+  assert.match(deletion, /googleTokens:/);
   assert.match(deletion, /left\(lower\(user_key\), length\(\$\{ownerEmail\}\) \+ 1\)/);
   assert.doesNotMatch(deletion, /lower\(user_key\) like/);
-  assert.match(deletion, /removeLocalAccount/);
+  assert.match(deletion, /localAccount: options.deleteAccount/);
   assert.match(connections, /https:\/\/oauth2\.googleapis\.com\/revoke/);
   assert.match(scanRoute, /getUsableGoogleConnections\(session\.user\.email\)/);
   assert.doesNotMatch(page, /Boolean\(session\.accessToken\)/);
@@ -941,10 +942,10 @@ test("no tab bar exists anywhere in the web app, native shell, or harness", asyn
 });
 
 test("the old feed, sidebar, auth pages, and conversation modules are deleted", async () => {
-  for (const gone of ["app/wdyt-ui.css", "app/mobile-hierarchy.css", "app/editorial.css", "app/inbox-home.tsx", "app/conversation.tsx", "app/browser-handoff.ts", "app/auth-form.tsx", "app/login", "app/signup", "lib/harness/evidence.ts", "lib/harness/conversation.ts", "public/wdyt-mascot-yellow.png"]) {
+  for (const gone of ["app/wdyt-ui.css", "app/mobile-hierarchy.css", "app/editorial.css", "app/inbox-home.tsx", "app/conversation.tsx", "app/browser-handoff.ts", "app/auth-form.tsx", "app/signup", "lib/harness/evidence.ts", "lib/harness/conversation.ts", "public/wdyt-mascot-yellow.png"]) {
     assert.equal(await exists(gone), false, `${gone} should be deleted`);
   }
-  for (const kept of ["lib/harness/run.ts", "lib/harness/thread.ts", "lib/harness/resume.ts", "app/wdyt.css", "app/workspace.tsx", "app/task-route.tsx"]) {
+  for (const kept of ["app/login/page.tsx", "lib/harness/run.ts", "lib/harness/thread.ts", "lib/harness/resume.ts", "app/wdyt.css", "app/workspace.tsx", "app/task-route.tsx"]) {
     assert.equal(await exists(kept), true, `${kept} should exist`);
   }
 });

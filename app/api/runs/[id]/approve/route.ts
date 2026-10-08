@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 
 import { isConnectorConnected } from "../../../../../lib/composio/service";
 import { emailDraftEditSchema } from "../../../../../lib/harness/email-draft-edit";
@@ -10,7 +11,7 @@ import { auth } from "../../../../../auth";
 import { getGoogleConnectionAccessToken, getPrimaryGoogleConnectionId } from "../../../../../lib/auth/google-connections";
 import { sensitiveApprovalCategoryForAction, setAlwaysApproved } from "../../../../../lib/approval-preferences";
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const body = await request.json().catch(() => ({})) as { actionId?: string; mode?: "once" | "always"; emailEdit?: unknown; browserTakeoverDone?: boolean };
   if (body.mode !== undefined && body.mode !== "once" && body.mode !== "always") return NextResponse.json({ error: "Invalid approval mode." }, { status: 400 });
@@ -98,3 +99,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   await resumeRun(store, id, note);
   return NextResponse.json(await store.getSnapshot(id));
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

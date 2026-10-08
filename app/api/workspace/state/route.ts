@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUserEmail } from "../../../../lib/auth/session";
@@ -35,7 +36,7 @@ export async function GET() {
   });
 }
 
-export async function PUT(request: Request) {
+async function PUTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const raw = await request.text();
@@ -59,3 +60,5 @@ export async function PUT(request: Request) {
     updatedAt: result.row.updatedAt.toISOString(),
   }, { headers: { "cache-control": "private, no-store" } });
 }
+
+export const PUT = withRequestBodyLimit(PUTHandler, 2500000);

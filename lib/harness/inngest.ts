@@ -304,4 +304,9 @@ export const icloudSweepWorker = inngest.createFunction({
   return { accounts: accounts.length };
 });
 
-export const inngestFunctions = [opportunitySweepWorker, opportunityCheckWorker, icloudScanWorker, icloudSweepWorker, abandonedAgentWorker,...proactiveEngineFunctions, morningSweepWorker, morningIdeasWorker, phoneMonitorWorker, pauseEventWorker, pauseSweepWorker, pauseResumeWorker, agentWorker, googleSourceWorker, manualScanWorker, pushNotificationWorker, proactiveSweepWorker, scheduleSweepWorker, scheduleOccurrenceWorker];
+export const accountDeletionWorker = inngest.createFunction(
+  { id: "retry-account-deletions", retries: 2, concurrency: 1, triggers: [{ cron: "*/5 * * * *" }] },
+  async ({ step }) => step.run("finish-external-cleanup", async () => (await import("../account-deletion-cleanup")).retryAccountDeletions()),
+);
+
+export const inngestFunctions = [accountDeletionWorker, opportunitySweepWorker, opportunityCheckWorker, icloudScanWorker, icloudSweepWorker, abandonedAgentWorker,...proactiveEngineFunctions, morningSweepWorker, morningIdeasWorker, phoneMonitorWorker, pauseEventWorker, pauseSweepWorker, pauseResumeWorker, agentWorker, googleSourceWorker, manualScanWorker, pushNotificationWorker, proactiveSweepWorker, scheduleSweepWorker, scheduleOccurrenceWorker];

@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../../../lib/auth/session";
 import {
@@ -9,7 +10,7 @@ import {
 
 type InitialScanAction = "request" | "claim" | "complete" | "retry";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const body = await request.json().catch(() => ({})) as { action?: unknown };
@@ -29,3 +30,5 @@ export async function POST(request: Request) {
   }
   return NextResponse.json({ error: "Invalid initial scan action." }, { status: 400 });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

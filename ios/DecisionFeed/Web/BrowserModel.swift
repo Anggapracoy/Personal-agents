@@ -922,8 +922,13 @@ final class BrowserModel: NSObject, ObservableObject, UIGestureRecognizerDelegat
         if isDesignPreview { showDesignPreview("onboarding"); return }
 #endif
         guard authenticationSession == nil else { return }
+        // The verifier never leaves this authentication attempt until redemption.
+        let verifier = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0).base64EncodedString() }
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
         var url = configuration.baseURL.appending(path: "api/mobile/auth/start")
-        url.append(queryItems: [URLQueryItem(name: "provider", value: provider.rawValue)])
+        url.append(queryItems: [URLQueryItem(name: "provider", value: provider.rawValue), URLQueryItem(name: "handoffChallenge", value: challenge)])
         let session = ASWebAuthenticationSession(url: url, callbackURLScheme: configuration.callbackScheme) { [weak self] callbackURL, error in
             Task { @MainActor in
                 guard let self else { return }
@@ -933,6 +938,11 @@ final class BrowserModel: NSObject, ObservableObject, UIGestureRecognizerDelegat
                     self.pendingAuthenticationIntent = nil
                     let authError = error as? ASWebAuthenticationSessionError
                     if authError?.code != .canceledLogin { self.state = .failed(error.localizedDescription) }
+                    return
+                }
+                if let callbackURL, let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+                   components.queryItems?.first(where: { $0.name == "error" })?.value == "deletion_pending" {
+                    self.state = .failed("Your data is deleted. Connected services are still being disconnected. Try signing in again later.")
                     return
                 }
                 guard
@@ -946,11 +956,14 @@ final class BrowserModel: NSObject, ObservableObject, UIGestureRecognizerDelegat
                     self.state = .failed("The sign-in response was invalid.")
                     return
                 }
-                var consume = self.configuration.baseURL.appending(path: "api/mobile/auth/consume")
-                consume.append(queryItems: [URLQueryItem(name: "code", value: code)])
+                let consume = self.configuration.baseURL.appending(path: "api/mobile/auth/consume")
+                var request = URLRequest(url: consume, cachePolicy: .reloadIgnoringLocalCacheData)
+                request.httpMethod = "POST"
+                request.setValue(code, forHTTPHeaderField: "X-Dash-Handoff-Code")
+                request.setValue(verifier, forHTTPHeaderField: "X-Dash-Handoff-Verifier")
                 self.shouldResolveOnboardingAfterAuthentication = true
                 self.state = .loading
-                self.webView.load(URLRequest(url: consume, cachePolicy: .reloadIgnoringLocalCacheData))
+                self.webView.load(request)
             }
         }
         session.presentationContextProvider = coordinator

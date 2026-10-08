@@ -1,10 +1,12 @@
 import { signIn } from "../../../../../auth";
 import { mobileAuthStart } from "../../../../../lib/auth/mobile-start";
 import { createMobileGoogleAuthorizationURL } from "../../../../../lib/auth/mobile-google-oauth";
+import { validHandoffChallenge } from '../../../../../lib/auth/mobile-handoff';
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  if (!validHandoffChallenge(new URL(request.url).searchParams.get('handoffChallenge') ?? '')) return Response.json({ error: 'Update the iPhone app to sign in securely.' }, { status: 400 });
   const { provider, redirectTo } = mobileAuthStart(request);
 
   if (provider === "google") {

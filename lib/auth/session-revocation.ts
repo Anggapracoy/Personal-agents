@@ -18,6 +18,10 @@ async function revoke(key: string, database = securityDatabase()) {
     on conflict (key) do update set revoked_at = greatest(auth_revocations.revoked_at, excluded.revoked_at)`;
 }
 export async function revokeUserSessions(email: string, database = securityDatabase()) { await revoke(ownerKey(email), database); }
+export async function isAccountDeletionPending(email: string, database = securityDatabase()) {
+  const key = `deleting:${email.trim().toLowerCase()}`;
+  return database ? Boolean((await database`select 1 from auth_revocations where key=${key}`).length) : memory.has(key);
+}
 export async function revokeSession(token: SessionToken, database = securityDatabase()) {
   const { sessionId } = sessionIdentity(token);
   if (sessionId) await revoke(`session:${sessionId}`, database);
@@ -26,9 +30,9 @@ export async function revokeSession(token: SessionToken, database = securityData
 export async function isSessionRevoked(token: SessionToken, database = securityDatabase()) {
   if (!token.email) return true;
   const identity = sessionIdentity(token);
-  const keys = [ownerKey(token.email), `session:${identity.sessionId ?? ''}`];
+  const keys = [ownerKey(token.email), `session:${identity.sessionId ?? ''}`, `deleting:${token.email.trim().toLowerCase()}`];
   const records = database
     ? await database`select key, revoked_at from auth_revocations where key in ${database(keys)}`
     : keys.flatMap(key => memory.has(key) ? [{ key, revoked_at: memory.get(key)! }] : []);
-  return records.some(row => row.key === keys[1] || identity.sessionIssuedAt <= Number(row.revoked_at));
+  return records.some(row => row.key === keys[1] || row.key === keys[2] || identity.sessionIssuedAt <= Number(row.revoked_at));
 }

@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUserEmail } from "../../../../lib/auth/session";
@@ -11,7 +12,7 @@ const registration = z.object({
   environment: z.enum(["production", "sandbox"]),
 });
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = registration.safeParse(await request.json().catch(() => null));
@@ -20,10 +21,14 @@ export async function POST(request: Request) {
   return NextResponse.json({ registered: true });
 }
 
-export async function DELETE(request: Request) {
+async function DELETEHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = z.object({ token: deviceToken }).safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid device token." }, { status: 400 });
   return NextResponse.json({ removed: await unregisterPushDeviceToken(email, parsed.data.token) });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);
+
+export const DELETE = withRequestBodyLimit(DELETEHandler, 1048576);

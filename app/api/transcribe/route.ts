@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 
 import { NextResponse } from "next/server";
 import { auth } from "../../../auth";
@@ -6,7 +7,7 @@ import { enforceApiQuota } from "../../../lib/api-quota";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const transcriptionModel = "gpt-transcribe";
+const transcriptionModel = process.env.OPENAI_TRANSCRIPTION_MODEL?.trim() || "gpt-transcribe";
 const maximumAudioBytes = 4 * 1024 * 1024;
 const supportedAudioTypes = new Set([
   "audio/mp4",
@@ -18,7 +19,7 @@ const supportedAudioTypes = new Set([
   "audio/webm",
 ]);
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const limited = await enforceApiQuota(session.user.email, "transcription");
@@ -51,3 +52,5 @@ export async function POST(request: Request) {
   if (!text) return NextResponse.json({ error: "I didn’t hear any words in that recording." }, { status: 422 });
   return NextResponse.json({ text, model: transcriptionModel });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 5242880);

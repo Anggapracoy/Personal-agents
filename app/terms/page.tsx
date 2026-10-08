@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Use" updated="September 24, 2026">
+    <LegalPage title="Terms of Use" updated="October 8, 2026">
       <p>These Terms of Use govern your use of Dash, including its website, iPhone app, decision cards, connected services, Vault, agents, isolated browsers, and task results. By creating an account or using Dash, you agree to these Terms and the <a href="/privacy">Privacy Policy</a>. If you do not agree, do not use the service.</p>
 
       <h2>Eligibility and your account</h2>
@@ -17,7 +17,7 @@ export default function TermsPage() {
       <p>You are responsible for providing accurate account information, protecting access to your devices and sign-in methods, and promptly reporting suspected unauthorized use. You are responsible for activity performed through your account when you requested, approved, or reasonably enabled that activity.</p>
 
       <h2>App license and ownership</h2>
-      <p>Dash and its software, design, branding, and other service materials are owned by the developer or its licensors. They are protected by intellectual-property laws. Except for the limited right to use the service under these Terms, no rights are transferred to you.</p>
+      <p>Dash and its software, design, branding, and other service materials are owned by the developer or its licensors. They are protected by intellectual-property laws. The project source code is available under the MIT License. These service terms do not limit the rights granted by that license; bundled third-party materials retain their own terms.</p>
       <p>The iPhone app is licensed, not sold. Your license to the app is governed by Apple&apos;s <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" rel="noreferrer">Standard Licensed Application End User License Agreement</a>, including its permitted scope of use, unless a different license is presented through the App Store. These Terms additionally govern your Dash account and the service made available through the app.</p>
 
       <h2>Your content</h2>
@@ -44,7 +44,7 @@ export default function TermsPage() {
       <p>AI output, summaries, recommendations, extracted information, availability checks, and generated files may be incomplete, inaccurate, outdated, or unsuitable. You must review results before relying on them. Dash does not provide legal, medical, financial, tax, or other regulated professional advice, and its output is not a substitute for a qualified professional.</p>
 
       <h2>Acceptable use</h2>
-      <p>You may not use Dash to violate law or another person&apos;s rights; harass, deceive, exploit, or harm people; gain unauthorized access; distribute malware; interfere with service operation; evade security, approval, or usage controls; scrape or overload systems without permission; or submit content or instructions you are not authorized to use. You may not reverse engineer or copy the service except where applicable law does not allow that restriction.</p>
+      <p>You may not use Dash to violate law or another person&apos;s rights; harass, deceive, exploit, or harm people; gain unauthorized access; distribute malware; interfere with service operation; evade security, approval, or usage controls; scrape or overload systems without permission; or submit content or instructions you are not authorized to use. These restrictions concern misuse of a hosted service. They do not prohibit copying, modifying, reverse engineering, or redistributing source code when its license permits that activity.</p>
 
       <h2>Privacy, disconnection, and deletion</h2>
       <p>The <a href="/privacy">Privacy Policy</a> explains what information Dash handles and how it protects, retains, and deletes that information. Settings lets you remove supported integrations, remove Vault items, delete all account data, or delete your account. Deleting your account also requests deletion of the associated Dash data as described in the Privacy Policy.</p>
@@ -55,7 +55,7 @@ export default function TermsPage() {
 
       <h2>Suspension and termination</h2>
       <p>You may stop using Dash or delete your account at any time. The developer may restrict or suspend access when reasonably necessary to protect users or the service, comply with law, investigate abuse, or address a breach of these Terms. Where practical, notice and an opportunity to correct the issue will be provided.</p>
-      <p>When use ends, your license to use Dash ends. Provisions that by their nature should continue - including ownership, responsibility for completed external actions, disclaimers, liability limits, and dispute terms - will survive.</p>
+      <p>When hosted-service access ends, your right to use that hosted service ends. Rights granted under the MIT License to source code you received continue under that license. Provisions that by their nature should continue - including ownership, responsibility for completed external actions, disclaimers, liability limits, and dispute terms - will survive.</p>
 
       <h2>Disclaimers and limitation of liability</h2>
       <p>To the maximum extent permitted by law, Dash is provided “as is” and “as available,” without warranties that it will be uninterrupted, error-free, secure, accurate, or fit for a particular purpose. Nothing in these Terms excludes warranties or rights that cannot legally be excluded.</p>

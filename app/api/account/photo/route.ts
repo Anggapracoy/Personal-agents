@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { NextResponse } from "next/server";
 import { currentUserEmail } from "../../../../lib/auth/session";
 import { sameOrigin } from "../../../../lib/http-security";
@@ -10,7 +11,7 @@ export async function GET() {
   try { return NextResponse.json({ image: await getProfilePhoto(email) }, { headers }); }
   catch { return NextResponse.json({ error: "Couldn't load your photo." }, { status: 503, headers }); }
 }
-export async function PUT(request: Request) {
+async function PUTHandler(request: Request) {
   if (!sameOrigin(request)) return NextResponse.json({ error: "Cross-origin changes are blocked." }, { status: 403 });
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
@@ -32,3 +33,5 @@ export async function PUT(request: Request) {
     return NextResponse.json({ image }, { headers });
   } catch { return NextResponse.json({ error: "Couldn't save your photo. Try again." }, { status: 503, headers }); }
 }
+
+export const PUT = withRequestBodyLimit(PUTHandler, MAX_PHOTO_BYTES);

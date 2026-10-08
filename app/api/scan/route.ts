@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { discoveryGuidanceFor } from "../../../lib/proactive/engine/guidance";
 import { enforceApiQuota } from "../../../lib/api-quota";
 import { NextResponse } from "next/server";
@@ -337,7 +338,7 @@ async function executeScan(request: Request, emit?: (event: ScanEvent) => void):
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const limited = await enforceApiQuota(session.user.email, "scan");
@@ -370,3 +371,5 @@ export async function POST(request: Request) {
     },
   });
 }
+
+export const POST = withRequestBodyLimit(POSTHandler, 1048576);

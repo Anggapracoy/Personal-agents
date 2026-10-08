@@ -1,27 +1,68 @@
 # Open-source release review — October 8, 2026
 
-**Status: local checks passed and the dependency audit is clear after updates. Asset-rights and live-service verification remain before publication.** No GitHub repository was created, nothing was deployed, and no live database or provider account was used.
+**Status: the 16-item follow-up and a second code/secret/dependency review are complete locally. The GitHub repository remains private. Publication and deployment are separate release steps; see the Git history and Actions run for the committed source and CI status.** No live user credentials, paid model/browser/calling actions, or production database were used.
 
-## Local installation and functionality
+The reviewed baseline was commit `28db8e0`; the results below apply to the subsequent local working tree. This is a bounded review, not a claim that every possible vulnerability has been eliminated.
 
-Testing used a new copy with a fresh `node_modules` install, Node 22.17.1, pnpm 10.32.1 and a disposable PostgreSQL 16.14 server bound to loopback. It did not reuse the original application's environment file or dependency directory.
+## Follow-up on all 16 findings
+
+| # | Finding | Result |
+|---|---|---|
+| 1 | Public weather proxy | Authentication, per-user quota, coordinate validation and upstream timeout added. Anonymous HTTP request now returns 401. |
+| 2 | Body buffering before limits | Shared byte-limited readers wrap application parsers, Auth.js, Resia and Inngest; chunked input and declared sizes are checked, body reads time out, and over-limit input cannot reach mutating handlers. Inngest has a separate 16 MiB envelope limit. |
+| 3 | Spoofed shared-file size | Sizes are calculated from decoded bytes; malformed base64, extra files and oversized totals are rejected. The prior 18 MiB/zero-size reproduction now fails. |
+| 4 | Provider outages stop deletion | Local deletion and an encrypted cleanup outbox commit together. Provider cleanup retries through Inngest or the operator CLI; pending cleanup temporarily blocks sign-in. Tested with a failing provider stub, local deletion, retry and lock removal. |
+| 5 | Shared browser namespace | E2B metadata and Browserless profiles include installation identity. Upgrade instructions explain old-resource cleanup and separate provider projects. No live provider resources were changed. |
+| 6 | SQL errors do not stop migration command | Every psql call uses `-X -v ON_ERROR_STOP=1`. The list remains an explicitly ordered startup sequence, not an upgrade ledger. |
+| 7 | Missing login route | `/login` now explains the native sign-in flow and links home. It renders successfully; browser-only chat is still unsupported. |
+| 8 | MIT/service-terms conflict | Source-license rights are explicitly preserved; hosted-service termination does not terminate MIT rights. |
+| 9 | Privacy inaccuracies | AI-provider options, retired location moments, standing approvals and pending external-deletion cleanup are described accurately. Operators must qualify their own provider configuration. |
+| 10 | Bearer-only mobile handoff | Native S256 verifier/challenge binding added; redemption is a POST and requires the verifier. Wrong-verifier attempts do not consume the real attempt; replay is rejected. Requires migration 0040 and wrapper version 3. |
+| 11 | Spoofable waitlist IP | Only Vercel ingress or an explicitly configured, ingress-overwritten header is trusted. Other requests share a conservative quota. |
+| 12 | Legacy records survive deletion | Deletion clears retired moment/delivery tables when present and the matching waitlist row. It also clears legacy user token/location/preferences fields when keeping the account. Legacy Google tokens join the encrypted revocation queue. |
+| 13 | Fixed model selections | Main provider/model and proactive/transcription models are configurable. Main environment overrides take precedence over saved global choices. Availability and supported model options require operator verification. |
+| 14 | Missing CI/security policy | GitHub workflow and SECURITY.md added. GitHub returned 404 when enabling private vulnerability reporting; verify and enable that feature before public release. The workflow runs on source pushes and pull requests; its current result is recorded in GitHub Actions. |
+| 15 | Artwork permissions | Maintainer explicitly chose to retain existing Apple icons and the restaurant photograph. Unresolved redistribution rights remain documented in THIRD_PARTY_ASSETS.md. |
+| 16 | Provider-spending exposure | Operator cost controls and access configuration are documented. Calling/proactive access remains on by default; no subscriptions, app credits or dollar cap were reintroduced. No live spending settings were changed. |
+
+## Additional findings from the second pass
+
+- Disabled Composio SDK usage tracking and background version checks explicitly; removing the application analytics SDKs alone did not change that provider SDK default.
+- Local Mac Chrome-cookie import now requires explicit opt-in, the configured operator email and a loopback URL. Merely being a signed-in user is insufficient. Tests did not read any actual browser cookies.
+- Both Google sign-in paths require an explicitly verified Google email before using it as the account identity.
+- The legacy user-table cleanup and additional legacy-token revocation described above were discovered while rechecking deletion coverage.
+
+No further confirmed code blocker was identified in the final bounded pass. The external/operational items below remain open.
+
+## Verification
 
 | Check | Result |
 |---|---|
-| `pnpm install --frozen-lockfile` | Passed. pnpm reported skipped optional install scripts for bufferutil, esbuild and protobufjs; the subsequent checks below passed. |
-| Startup SQL sequence | All 32 current migrations listed by `db:migrate` applied to an empty database after removing subscription billing; no billing tables created. |
-| `pnpm test` | 1,108 passed after billing removal; 30 integration/live-service tests skipped by default. |
-| Additional real-PostgreSQL integration tests | 68 passed, none skipped in the selected suite after billing removal. Covered persistence, account isolation, schedules, pauses, replies, artifacts, session revocation and capacity limits. |
-| `pnpm lint` | Passed. |
-| `pnpm build` | Passed using the default Turbopack build. |
-| Fresh-copy iOS simulator build | Passed with signing disabled in the initial review. No Swift or native project files changed in the dependency update. |
-| Production-server HTTP checks | Nine checks passed: landing and authenticated native workspace rendered; owner could read stored run/messages; anonymous access returned 401; another account returned 404; former admin/analytics URLs returned 404. |
+| Frozen dependency install | Passed using pnpm 10.32.1. Optional skipped build-script notices remain; the builds below passed. |
+| Unit/contract suite | 1,117 passed, zero failed; 32 tests skipped by default. |
+| Disposable PostgreSQL 16 integration suite | 70 passed, none skipped in the selected suite. Includes failed-provider deletion recovery and device-bound handoff redemption/replay. |
+| Latest deletion/auth regression check | 5 passed after the final legacy-token cleanup adjustment. |
+| Startup migrations | All 34 scripts in the package startup list applied to a fresh local database. |
+| TypeScript | Passed. |
+| Production Next.js build | Passed. |
+| iOS simulator build | Passed with signing disabled, including wrapper version 3. |
+| Production HTTP checks | 20 passed: public pages, login fallback, anonymous access, body limit, handoff proof/replay, weather validation, native workspace and owner isolation. |
+| Browser inspection | Landing, Privacy and login fallback visually checked; Terms navigation and updated content verified. |
+| Dependency audits | Full and production-only audits both report zero known vulnerabilities. |
+| Secret scan | Current source, including new/untracked files, scanned with Gitleaks. Only the two existing synthetic test-token matches at tests/harness.test.ts:279 and :433. Git history was already scanned at the two-commit baseline. |
+| Whitespace | `git diff --check` passed. |
 
-The SQL files were executed with the PostgreSQL client library against the real server because the disposable server package does not contain the `psql` executable. The README command's environment loading and migration file list were separately validated with a non-database stub in the preceding documentation check. This does not claim a literal `psql` run on this machine.
+The local PostgreSQL package lacks the psql executable. Migration SQL ran through the PostgreSQL client library against the real server; this is not a claim that the literal psql command was executed locally. CI uses psql against its disposable PostgreSQL service.
 
-The integration suite needed a separate disposable capacity database and a non-`react-server` invocation for the direct Auth.js test. It used Node's `--test-force-exit` because some test workers retain connections after assertions finish. An old conversation-notification expectation was updated to include the existing `stale: false` field; no notification behavior was changed.
+HTTP authentication used synthetic local sessions. Live Google/Apple OAuth, APNs, Inngest Cloud, model access, Browserless/E2B, Composio, calling and signed-device installation were not exercised. The native build and HTTP handoff tests do not replace those live integration checks. Temporary review servers and the disposable database are shut down after verification.
 
-HTTP authentication used synthetic local sessions. Real Google/Apple OAuth, APNs delivery, Inngest Cloud, AI calls, Browserless/E2B, Composio, phone calls and signed-device installation were not exercised. No paid actions were initiated. Those need operator credentials and separate end-to-end qualification.
+## Remaining release/operational work
+
+1. Retained artwork still has unresolved redistribution rights, by the maintainer's explicit choice.
+2. Enable/verify GitHub private vulnerability reporting when the repository's feature availability permits it; the attempt here returned 404.
+3. Apply migrations 0039 and 0040 and distribute the matching wrapper version 3 when deploying these changes. Configure the cleanup worker and monitor pending deletion jobs. Clean up old browser namespaces through the provider before upgrading an existing installation.
+4. Qualify the supported live providers using your own isolated deployment and credentials, and set provider-side spending/access limits.
+5. Keep deployment and any change to public visibility as separately authorized release steps.
 
 ## Dependency findings — resolved
 
@@ -68,9 +109,3 @@ This assessment covers the release directory, not the original private Git histo
 See [the asset review](THIRD_PARTY_ASSETS.md). Three missing SIL OFL notices were added for the bundled fonts, matching their embedded metadata. Existing card-network, iPhone-frame and cursor-motion notices were retained.
 
 **Still unresolved:** redistribution permission for the copied Apple app icons and the L'Artusi restaurant photo. Attribution/source links alone do not establish permission. Confirm rights or replace these assets before distributing the repository. Confirm ownership of the project-supplied artwork as well.
-
-## Next actions
-
-1. Resolve the identified artwork permissions or replace the assets with redistributable alternatives.
-2. Qualify real OAuth and whichever external providers will be supported, using an isolated deployment and explicit authorization for paid or externally visible actions.
-3. Repeat the release scan on the final tree, then create and publish the new repository only after approval.

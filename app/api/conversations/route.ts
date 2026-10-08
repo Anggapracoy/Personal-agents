@@ -1,3 +1,4 @@
+import { withRequestBodyLimit } from "../../../lib/request-body-limit";
 import { NextResponse } from 'next/server';
 import { currentUserEmail } from '../../../lib/auth/session';
 import { conversationActionSchema } from '../../../lib/conversation-settings';
@@ -9,7 +10,7 @@ export async function GET() {
   const [settings, messages] = await Promise.all([getConversationSettings(email), getConversationMessages(email)]);
   return NextResponse.json({ settings, messages }, { headers });
 }
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   const email = await currentUserEmail();
   if (!email) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   const parsed = conversationActionSchema.safeParse(await request.json().catch(() => null));
@@ -20,3 +21,5 @@ export async function PATCH(request: Request) {
     throw error;
   }
 }
+
+export const PATCH = withRequestBodyLimit(PATCHHandler, 1048576);
