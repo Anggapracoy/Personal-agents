@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from './helpers/process';
 import { CLOUD_BROWSER_CONTROLLER } from '../lib/harness/browser/cloud-controller';
 
 test('hidden waits require complete observations and remain bounded', () => {

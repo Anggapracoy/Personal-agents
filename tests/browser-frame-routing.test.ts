@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
+import {spawnSync} from './helpers/process';
 import {CLOUD_BROWSER_CONTROLLER} from '../lib/harness/browser/cloud-controller';
 
 test('frame discovery uses child-process sessions before requesting parent worlds and excludes other tabs',()=>{

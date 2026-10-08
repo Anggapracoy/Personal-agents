@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from './helpers/process';
 import { EXTENDED_BROWSER_CONTROLLER } from '../lib/harness/browser/extended-controller';
 import { extendedBrowserSchema } from '../lib/harness/browser/extended-schema';
 import { runBrowserScript } from '../lib/harness/browser/script';

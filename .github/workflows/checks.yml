@@ -5,6 +5,7 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -13,6 +14,7 @@ jobs:
           node-version: '22'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: python3 --version
       - run: pnpm test
       - run: pnpm lint
       - run: pnpm build
@@ -21,6 +23,7 @@ jobs:
       - run: pnpm audit --audit-level=moderate
   database:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     services:
       postgres:
         image: postgres:16

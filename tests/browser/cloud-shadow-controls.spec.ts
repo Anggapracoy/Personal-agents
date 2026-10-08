@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../helpers/process';
 import type { BrowserSnapshot } from '../../lib/harness/browser/cloud';
 import { CLOUD_BROWSER_CONTROLLER } from '../../lib/harness/browser/cloud-controller';
 

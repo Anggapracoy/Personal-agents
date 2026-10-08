@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from './helpers/process';
 import type { ModelMessage } from 'ai';
 import { CLOUD_BROWSER_CONTROLLER } from '../lib/harness/browser/cloud-controller';
 import { formatDomSnapshot, type BrowserSnapshot, type BrowserAXNode } from '../lib/harness/browser/cloud';

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../helpers/process';
 import { CLOUD_BROWSER_CONTROLLER } from '../../lib/harness/browser/cloud-controller';
 
 test('controller key sequences reach a keyboard-driven board as trusted events without submitting', async ({page}) => {

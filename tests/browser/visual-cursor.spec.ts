@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../helpers/process';
 import { VISUAL_CURSOR_EXPRESSION, CURSOR_RESTORE_EXPRESSION, CURSOR_FRAME_POINT } from '../../lib/harness/browser/visual-cursor';
 import { CLOUD_BROWSER_CONTROLLER } from '../../lib/harness/browser/cloud-controller';
 

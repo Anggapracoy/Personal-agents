@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from './helpers/process';
 import { BrowserlessCloudBrowserProvider, createCloudBrowserAccountState } from '../lib/harness/browser/cloud';
 import { CLOUD_BROWSER_CONTROLLER } from '../lib/harness/browser/cloud-controller';
 

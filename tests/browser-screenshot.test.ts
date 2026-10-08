@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
+import {spawnSync} from './helpers/process';
 import {CLOUD_BROWSER_CONTROLLER} from '../lib/harness/browser/cloud-controller';
 const helper=CLOUD_BROWSER_CONTROLLER.slice(CLOUD_BROWSER_CONTROLLER.indexOf('def capture_screenshot('),CLOUD_BROWSER_CONTROLLER.indexOf('def set_secret_mask('));
 test('screenshot retries are bounded, read-only, and reject missing frames',()=>{

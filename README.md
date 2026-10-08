@@ -20,6 +20,7 @@ This is a self-hosted source distribution. You supply the database, hosting, pro
 ## Requirements
 
 - Node.js 22 and pnpm 10.32.1 (the version specified in `package.json`).
+- For the full test suite: Python 3 on macOS or Linux; browser-controller fixtures use its standard library.
 - PostgreSQL, including the `pgcrypto` extension, and the `psql` command-line client. PostgreSQL 16 is a suitable starting point.
 - A Google OAuth web client for the documented sign-in flow.
 - An OpenAI API key with access to the configured models for the default assistant and proactive features.

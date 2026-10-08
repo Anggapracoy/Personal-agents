@@ -56,6 +56,10 @@ The local PostgreSQL package lacks the psql executable. Migration SQL ran throug
 
 HTTP authentication used synthetic local sessions. Live Google/Apple OAuth, APNs, Inngest Cloud, model access, Browserless/E2B, Composio, calling and signed-device installation were not exercised. The native build and HTTP handoff tests do not replace those live integration checks. Temporary review servers and the disposable database are shut down after verification.
 
+## GitHub CI follow-up
+
+The first pushed Linux run passed the database job but exposed a test-launcher portability problem: the generated Python controller fixture is larger than Linux permits in a single command-line argument. The Python test launcher now loads source from a temporary file while preserving `python -c` argument and standard-input behavior. No browser assertions were removed or skipped. All 80 targeted launcher/browser regression tests and TypeScript passed locally after this correction; the subsequent GitHub Actions run records the full Linux result.
+
 ## Remaining release/operational work
 
 1. Retained artwork still has unresolved redistribution rights, by the maintainer's explicit choice.
