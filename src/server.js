@@ -5,9 +5,10 @@ import { buildAuthorizationUrl, buildCalendarEvent, createCodeChallenge, createC
 import { createOAuthSession, validOAuthSession, TokenStore } from './oauth.js';
 import { formatMeetingProposal, MeetingProposalStore, parseMeetingRequest } from './meetings.js';
 import { AuditLog } from './audit.js';
+import { IdempotencyStore } from './idempotency.js';
 
 const store = new ReminderStore(process.env.ANAKBUAH_DATA_FILE || './data/reminders.json');
-const processed = new Set();
+const processed = new IdempotencyStore(process.env.ANAKBUAH_IDEMPOTENCY_FILE || './data/processed-webhooks.json');
 const requestWindows = new Map();
 const oauthSessions = new Map();
 const meetingProposals = new MeetingProposalStore(process.env.ANAKBUAH_MEETING_FILE || './data/meeting-proposals.json');
