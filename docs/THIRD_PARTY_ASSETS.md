@@ -1,10 +1,11 @@
 # Third-party asset review
 
-Reviewed October 8, 2026. The maintainer subsequently authorized replacing the copied Apple icons and restaurant photograph. The current source uses the licensed replacements listed below; earlier Git commits still contain the old files and must be cleaned before public release. The project's MIT license does not replace third-party licenses or grant trademark rights.
+Reviewed October 8, 2026. The maintainer subsequently authorized replacing the copied Apple icons and restaurant photograph. The current source uses the licensed replacements listed below; reachable Git history has been cleaned, and the fresh release repository cannot retrieve any of the 13 old image blobs. The superseded repository remains a private archive; see [the publication review](PUBLICATION_REVIEW.md). The project's MIT license does not replace third-party licenses or grant trademark rights.
 
 | Asset group | Evidence in this repository | Review outcome |
 |---|---|---|
 | Archivo, Spectral and IBM Plex Mono fonts | Embedded copyright/family metadata; [font notices](../public/fonts/README.md) | Added the corresponding upstream SIL OFL 1.1 notices. Keep these with the fonts. |
+| Cover typography fonts (Manrope, Inter Tight, Plus Jakarta Sans) | [Source records and matching OFL notices](images/github-cover/fonts/README.md) | Existing upstream SIL OFL 1.1 notices verified. |
 | Card-network SVGs | [Source attribution](../public/card-networks/README.md) and [Apache 2.0 license](../public/card-networks/LICENSE) | Code/artwork license notice retained. Network trademarks remain owned by their respective owners. |
 | iPhone frame | [Source](landing-artwork.md) and [MIT notice](../public/landing/iphone-frame-LICENSE.txt) | Existing upstream notice retained. The software license does not itself resolve any separate trademark/design rights. |
 | Cursor-motion code | [MIT attribution](licenses/cua-cursor-motion.txt) | Existing Cua copyright and license retained. |

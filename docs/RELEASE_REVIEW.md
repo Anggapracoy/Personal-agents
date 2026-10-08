@@ -2,7 +2,7 @@
 
 **Status: the 16-item follow-up and a second code/secret/dependency review are complete locally. The GitHub repository remains private. Publication and deployment are separate release steps; see the Git history and Actions run for the committed source and CI status.** No live user credentials, paid model/browser/calling actions, or production database were used.
 
-The reviewed baseline was commit `28db8e0`; the results below apply to the subsequent local working tree. This is a bounded review, not a claim that every possible vulnerability has been eliminated.
+The reviewed baseline preceded the security and media cleanup; Git commit IDs were subsequently rewritten to remove superseded media. This is a bounded review, not a claim that every possible vulnerability has been eliminated.
 
 ## Follow-up on all 16 findings
 
@@ -32,7 +32,7 @@ The reviewed baseline was commit `28db8e0`; the results below apply to the subse
 - Both Google sign-in paths require an explicitly verified Google email before using it as the account identity.
 - The legacy user-table cleanup and additional legacy-token revocation described above were discovered while rechecking deletion coverage.
 
-No further confirmed code blocker was identified in the final bounded pass. The external/operational items below remain open.
+A subsequent pre-publication pass found an unauthenticated mobile handoff write and found that GitHub retained an old unreferenced image object; the release repository has since been replaced with a clean private repository. See [the latest publication review](PUBLICATION_REVIEW.md) for reproduced findings and the remaining actions.
 
 ## Verification
 
@@ -62,7 +62,7 @@ The first pushed Linux run passed the database job but exposed a test-launcher p
 
 ## Remaining release/operational work
 
-1. Remove the superseded Apple icon files and L’Artusi photograph from historical Git commits before public release. Current-source replacements and notices are described in THIRD_PARTY_ASSETS.md.
+1. Fix the unauthenticated mobile handoff creation documented in PUBLICATION_REVIEW.md. Asset history and host-side retention are now resolved for the fresh release repository. Keep the superseded private archive private.
 2. Enable/verify GitHub private vulnerability reporting when the repository's feature availability permits it; the attempt here returned 404.
 3. Apply migrations 0039 and 0040 and distribute the matching wrapper version 3 when deploying these changes. Configure the cleanup worker and monitor pending deletion jobs. Clean up old browser namespaces through the provider before upgrading an existing installation.
 4. Qualify the supported live providers using your own isolated deployment and credentials, and set provider-side spending/access limits.
@@ -112,4 +112,4 @@ This assessment covers the release directory, not the original private Git histo
 
 See [the asset review](THIRD_PARTY_ASSETS.md). Three missing SIL OFL notices were added for the bundled fonts, matching their embedded metadata. Existing card-network, iPhone-frame and cursor-motion notices were retained.
 
-**Current source updated:** the copied Apple app icons and L’Artusi photo have been replaced with licensed capability glyphs and a credited Unsplash photograph. The old assets remain in earlier Git commits and must be removed from history before public release. Confirm ownership of the project-supplied artwork as well.
+**Current source updated:** the copied Apple app icons and L’Artusi photo have been replaced with licensed capability glyphs and a credited Unsplash photograph. The old assets have been removed from reachable Git history, but the release repository was replaced with a fresh private repository whose API returns 404 for all 13 old image blobs. Confirm ownership of the project-supplied artwork as well.
