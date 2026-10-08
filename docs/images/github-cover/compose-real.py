@@ -24,7 +24,7 @@ box = draw.textbbox((0, 0), headline, font=font)
 advances = [font.getlength(headline[i:i+2]) - font.getlength(headline[i+1]) + args.tracking for i in range(len(headline)-1)] + [font.getlength(headline[-1])]
 x = (3840 - sum(advances)) / 2
 for char, advance in zip(headline, advances):
-    draw.text((x, 315 - box[1]), char, fill='black', font=font)
+    draw.text((x, 355 - box[1]), char, fill='black', font=font)
     x += advance
 
 def captured_phone(filename, width, tilt, opacity):
@@ -49,9 +49,9 @@ def captured_phone(filename, width, tilt, opacity):
 # All bottoms extend beyond the canvas and are clipped at the same flat edge.
 # Only the outer captures receive the slight opacity reduction requested.
 for name, center_x, top, width, angle, alpha in [
-    ('feed.png', 1070, 790, 900, 5, .90),
-    ('montreal-keyboard.png', 2770, 790, 900, -5, .90),
-    ('proactive-chat.png', 1920, 660, 900, 0, 1),
+    ('feed.png', 1070, 850, 900, 5, .90),
+    ('montreal-keyboard.png', 2770, 850, 900, -5, .90),
+    ('proactive-chat.png', 1920, 720, 900, 0, 1),
 ]:
     phone = captured_phone(name, width, angle, alpha)
     canvas.alpha_composite(phone, (round(center_x - phone.width / 2), top))
