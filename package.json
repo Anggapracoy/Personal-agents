@@ -1,0 +1,12 @@
+{
+  "name": "anakbuah",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Anakbuah personal assistant core",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "node --env-file=.env src/server.js"
+  },
+  "engines": { "node": ">=20" }
+}
