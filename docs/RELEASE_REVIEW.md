@@ -32,7 +32,7 @@ The reviewed baseline preceded the security and media cleanup; Git commit IDs we
 - Both Google sign-in paths require an explicitly verified Google email before using it as the account identity.
 - The legacy user-table cleanup and additional legacy-token revocation described above were discovered while rechecking deletion coverage.
 
-A subsequent pre-publication pass found an unauthenticated mobile handoff write and found that GitHub retained an old unreferenced image object; the release repository has since been replaced with a clean private repository. See [the latest publication review](PUBLICATION_REVIEW.md) for reproduced findings and the remaining actions.
+The subsequent pre-publication findings have been addressed: mobile handoffs require validated sessions and quotas, production secrets are checked, cleanup operations have deadlines and lease fences, and the release repository has no superseded image objects. See [the latest publication review](PUBLICATION_REVIEW.md) for evidence and the remaining publication/deployment steps.
 
 ## Verification
 
@@ -62,7 +62,7 @@ The first pushed Linux run passed the database job but exposed a test-launcher p
 
 ## Remaining release/operational work
 
-1. Fix the unauthenticated mobile handoff creation documented in PUBLICATION_REVIEW.md. Asset history and host-side retention are now resolved for the fresh release repository. Keep the superseded private archive private.
+1. Source-code hardening and asset cleanup are complete. Publish only after explicit authorization and keep the superseded private archive private.
 2. Enable/verify GitHub private vulnerability reporting when the repository's feature availability permits it; the attempt here returned 404.
 3. Apply migrations 0039 and 0040 and distribute the matching wrapper version 3 when deploying these changes. Configure the cleanup worker and monitor pending deletion jobs. Clean up old browser namespaces through the provider before upgrading an existing installation.
 4. Qualify the supported live providers using your own isolated deployment and credentials, and set provider-side spending/access limits.

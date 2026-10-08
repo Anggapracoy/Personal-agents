@@ -1,7 +1,9 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { assertProductionAuthSecret } from '../auth/secret-validation';
 
 function encryptionKey() {
   const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+  assertProductionAuthSecret(secret);
   if (!secret || secret.length < 16) throw new Error("AUTH_SECRET is required to persist agent credentials securely.");
   return createHash("sha256").update(secret).digest();
 }

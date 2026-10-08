@@ -83,3 +83,22 @@ Calling, proactive features and rich replies remain enabled for everyone by defa
 Importing the Mac operator's Chrome sessions is disabled by default. To enable it, set `CHROME_PROFILE_IMPORT_LOCAL=1` and `CHROME_PROFILE_IMPORT_OWNER` to the operator's exact signed-in email. Only that account and a loopback URL are accepted. Bind the local server to loopback and do not expose it through a tunnel or public reverse proxy. This is a local operator tool, not a multi-user hosted feature. No local Chrome files or cookies were read during the security tests.
 
 Use separate Composio projects/credentials for separate installations; its connected-account user identity is scoped to the provider project. Browser namespaces do not isolate unrelated services that share one provider project.
+
+## Final authentication and cleanup hardening
+
+Production authentication, OAuth state and encrypted credential use require a unique random `AUTH_SECRET` of at least 32 characters. Known examples/placeholders and repeated-character secrets are rejected at runtime. Building the source does not require live deployment secrets. Generate the value using the README command. Keep it stable: an older installation with a shorter secret needs a credential/data migration plan rather than blindly changing the encryption key.
+
+Mobile sign-in finish validates the Auth.js session and revocation state before creating a handoff, and admits at most six handoffs per minute/thirty per hour per account. Cookie chunking and the native verifier are preserved. Temporary Google refresh transport failures are bounded and keep the verified identity usable while source access recovers.
+
+Deletion cleanup has a shared two-minute deadline inside its five-minute lease. Google, Composio and browser operations receive abort signals, and destructive operations check ownership before execution. An expired/superseded attempt cannot clear the pending-account lock. Failed or malformed jobs remain queued for retry. Provider-side timeout outcomes still require the existing retry/idempotency behavior; local tests do not certify every live provider implementation.
+
+### Publication step: private vulnerability reporting
+
+GitHub only exposes private vulnerability reporting for public repositories. Once publication of this exact release repository has been authorized and performed, enable and verify it:
+
+```sh
+gh api --method PUT repos/mg272011/Dash-opensource/private-vulnerability-reporting
+gh api repos/mg272011/Dash-opensource/private-vulnerability-reporting
+```
+
+Verify `enabled` is true. Do not change the visibility of `Dash-opensource-private-archive`. Live Google/Apple OAuth and provider qualification were explicitly deferred while code/local checks were completed; validate them on an isolated deployment before offering a hosted service.

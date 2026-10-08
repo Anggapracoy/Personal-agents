@@ -74,3 +74,10 @@ test('Mac Chrome sessions require explicit operator opt-in and cannot be importe
     if (process.platform === 'darwin') assert.equal(localChromeImportAvailable('http://localhost', 'operator@example.invalid'), true);
   } finally { keys.forEach((key, i) => { if (previous[i] === undefined) delete process.env[key]; else process.env[key] = previous[i]; }); }
 });
+
+test('production rejects missing, placeholder and repeated secrets while preserving development fixtures', async () => {
+  const { assertProductionAuthSecret } = await import('../lib/auth/secret-validation');
+  for (const value of [undefined, 'replace-with-a-random-secret', 'change-me', 'a'.repeat(64)]) assert.throws(() => assertProductionAuthSecret(value, 'production'), /randomly generated/);
+  assert.doesNotThrow(() => assertProductionAuthSecret('7b8ca43692ef015ed38b3e9878d43b5432a19fb1d0f97d4ae379c84f605be803', 'production'));
+  assert.doesNotThrow(() => assertProductionAuthSecret('development-fixture', 'development'));
+});

@@ -1,3 +1,4 @@
+import { assertCleanupActive, type CleanupControl } from "../../cleanup-control";
 import { inactiveBrowserTargets } from "./tab-lifecycle";
 import { createCloudBrowserAccountState, BrowserlessCloudBrowserProvider, type CloudBrowserAccountState } from "./cloud";
 
@@ -32,12 +33,13 @@ export function getCloudBrowser(userId: string, targetKey = "shared") {
   return browser;
 }
 
-export async function closeCloudBrowser(userId: string) {
+export async function closeCloudBrowser(userId: string, control?: CleanupControl) {
   const normalizedUserId = userId.trim().toLowerCase();
   const prefix = `${normalizedUserId}\u0000`;
   const entries = [...browsers.entries()].filter(([key]) => key.startsWith(prefix));
   const browser = entries[0]?.[1] ?? new BrowserlessCloudBrowserProvider("shared", accounts.get(normalizedUserId) ?? createCloudBrowserAccountState(), normalizedUserId);
-  await browser.destroy();
+  await browser.destroy(control);
+  await assertCleanupActive(control);
   for (const [key] of entries) browsers.delete(key);
   accounts.delete(normalizedUserId);
 }

@@ -139,3 +139,56 @@ test('a stolen handoff code cannot be redeemed without its device verifier or co
     assert.equal(await consumeMobileAuthHandoff(code, verifier), null);
   } finally { if (previous === undefined) delete process.env.AUTH_SECRET; else process.env.AUTH_SECRET = previous; }
 });
+
+test('cancelled and superseded deletion workers cannot perform late destructive continuation', { skip: !url }, async () => {
+  process.env.DATABASE_URL = url;
+  const previous = process.env.AUTH_SECRET; process.env.AUTH_SECRET = 'deletion-worker-fixture-secret';
+  const db = postgres(url!, { max: 2 });
+  const { finishAccountDeletion } = await import('../lib/account-deletion-cleanup');
+  const { encryptSecret } = await import('../lib/harness/secrets');
+  const { assertCleanupActive } = await import('../lib/cleanup-control');
+  const noProviders = { google: async () => {}, composio: async () => {}, browser: async () => {}, localAccount: async () => {} };
+  for (const reason of ['cancelled', 'superseded', 'deadline']) {
+    const owner = `${reason}-${crypto.randomUUID()}@example.invalid`;
+    let release!: () => void; const gate = new Promise<void>(resolve => { release = resolve; });
+    let started!: () => void; const entered = new Promise<void>(resolve => { started = resolve; });
+    let lateFinished!: () => void; const settled = new Promise<void>(resolve => { lateFinished = resolve; });
+    let destructive = 0; const abort = new AbortController();
+    try {
+      await db`insert into account_deletion_jobs(owner_email,encrypted_payload) values (${owner},${encryptSecret(JSON.stringify({ googleTokens:[],composioSessionIds:[],composio:false,browser:true,localAccount:false }))})`;
+      await db`insert into auth_revocations(key,revoked_at) values (${`deleting:${owner}`},${Date.now()})`;
+      const attempt = finishAccountDeletion(owner, { ...noProviders, browser: async (_owner, control) => {
+        started(); await gate;
+        try { await assertCleanupActive(control); destructive++; } finally { lateFinished(); }
+      } }, { signal: abort.signal, ...(reason === 'deadline' ? { deadlineMs: 2000 } : {}) });
+      await entered;
+      if (reason === 'cancelled') abort.abort(new Error('fixture cancellation'));
+      else if (reason === 'superseded') await db`update account_deletion_jobs set lease_token=${crypto.randomUUID()} where owner_email=${owner}`;
+      if (reason === 'deadline') { assert.equal(await attempt, false); release(); }
+      else { release(); assert.equal(await attempt, false); }
+      await settled;
+      assert.equal(destructive, 0);
+      assert.equal((await db`select 1 from account_deletion_jobs where owner_email=${owner}`).length, 1);
+      assert.equal((await db`select 1 from auth_revocations where key=${`deleting:${owner}`}`).length, 1);
+    } finally { release(); await db`delete from account_deletion_jobs where owner_email=${owner}`; await db`delete from auth_revocations where key=${`deleting:${owner}`}`; }
+  }
+  await db.end(); if (previous === undefined) delete process.env.AUTH_SECRET; else process.env.AUTH_SECRET = previous;
+});
+
+test('temporary Google refresh transport failure keeps the verified session and uses a deadline', { skip: !url }, async () => {
+  process.env.DATABASE_URL = url;
+  const previous = process.env.AUTH_SECRET; process.env.AUTH_SECRET = 'bounded-refresh-fixture-auth-secret';
+  const originalFetch = globalThis.fetch; let calls = 0;
+  try {
+    globalThis.fetch = async (target, options) => {
+      assert.equal(String(target), 'https://oauth2.googleapis.com/token'); assert.ok(options?.signal); calls++;
+      throw new Error('synthetic offline transport');
+    };
+    const { encode } = await import('next-auth/jwt'); const { NextRequest } = await import('next/server');
+    const { handlers } = await import('../auth');
+    const email = `refresh-${crypto.randomUUID()}@example.invalid`;
+    const token = await encode({ secret: process.env.AUTH_SECRET, salt: 'decision-feed.session-token', token: { email, sub: 'fixture', authProvider: 'google', sessionId: crypto.randomUUID(), sessionIssuedAt: Date.now(), accessTokenExpires: 0, refreshToken: 'synthetic-not-sent' } });
+    const response = await handlers.GET(new NextRequest('http://localhost/api/auth/session', { headers: { cookie: `decision-feed.session-token=${token}` } }));
+    assert.equal((await response.json()).user.email, email); assert.equal(calls, 1);
+  } finally { globalThis.fetch = originalFetch; if (previous === undefined) delete process.env.AUTH_SECRET; else process.env.AUTH_SECRET = previous; }
+});

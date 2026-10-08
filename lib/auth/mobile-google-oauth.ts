@@ -1,3 +1,4 @@
+import { assertProductionAuthSecret } from "./secret-validation";
 
 import { googleOAuthOrigin } from "./google-oauth-origin";
 import { createHash, randomBytes } from "node:crypto";
@@ -32,6 +33,7 @@ function configuration() {
   const clientId = process.env.AUTH_GOOGLE_ID;
   const clientSecret = process.env.AUTH_GOOGLE_SECRET;
   const authSecret = process.env.AUTH_SECRET;
+  assertProductionAuthSecret(authSecret);
   if (!clientId || !clientSecret || !authSecret) throw new Error("Mobile Google authentication is not configured.");
   return { clientId, clientSecret, authSecret };
 }

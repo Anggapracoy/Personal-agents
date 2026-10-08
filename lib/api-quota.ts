@@ -9,6 +9,7 @@ const policies = {
   reply: [[60_000, 30], [3_600_000, 300]],
   transcription: [[60_000, 20], [3_600_000, 120]],
   weather: [[60_000, 10], [3_600_000, 100]],
+  handoff: [[60_000, 6], [3_600_000, 30]],
 } as const;
 const memory = new Map<string, { start: number; count: number }>();
 

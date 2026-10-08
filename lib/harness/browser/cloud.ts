@@ -1,3 +1,4 @@
+import { assertCleanupActive, type CleanupControl } from "../../cleanup-control";
 import { installationNamespace } from "../../installation-identity";
 import { keepControllerAlive } from "./controller-lease";
 import { CHARACTERS, characterIndexFor } from "../../conversation-character";
@@ -516,28 +517,34 @@ export class BrowserlessCloudBrowserProvider {
     return { ...result, page: { ...page, formatted: formatDomSnapshot(page) } };
   }
 
-  async destroy() {
+  async destroy(control?: CleanupControl) {
     // Account deletion must also work after a server restart. List existing
     // controllers, never create a runtime or browser just to remove its data.
     await this.exclusive(async () => {
+      await assertCleanupActive(control);
+      const requestOptions = { signal: control?.signal, requestTimeoutMs: 10_000 };
       const userHash = this.account.userHash ?? (this.userId ? createHash("sha256").update(this.userId.trim().toLowerCase()).digest("hex").slice(0, 24) : null);
       this.account.userHash = userHash;
       const sandboxes = new Map<string, ControllerSandbox>();
       if (this.account.sandbox) sandboxes.set(this.account.sandbox.sandboxId, this.account.sandbox);
       if (userHash && process.env.E2B_API_KEY) {
-        const listing = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, query: { metadata: { service: "dash-browser-controller", installation: installationNamespace(), user: userHash }, state: ["running", "paused"] } });
+        const listing = ControllerSandbox.list({ apiKey: process.env.E2B_API_KEY, ...requestOptions, query: { metadata: { service: "dash-browser-controller", installation: installationNamespace(), user: userHash }, state: ["running", "paused"] } });
         while (listing.hasNext) {
-          for (const item of await listing.nextItems()) {
-            if (!sandboxes.has(item.sandboxId)) sandboxes.set(item.sandboxId, await ControllerSandbox.connect(item.sandboxId, { apiKey: process.env.E2B_API_KEY, timeoutMs: 60_000 }));
+          await assertCleanupActive(control);
+          for (const item of await listing.nextItems(requestOptions)) {
+            if (!sandboxes.has(item.sandboxId)) sandboxes.set(item.sandboxId, await ControllerSandbox.connect(item.sandboxId, { apiKey: process.env.E2B_API_KEY, ...requestOptions, timeoutMs: 60_000 }));
           }
         }
       }
       for (const sandbox of sandboxes.values()) {
+        await assertCleanupActive(control);
         try {
-          await sandbox.files.write(this.controllerPath, CLOUD_BROWSER_CONTROLLER);
-          await this.runControllerCommand(sandbox, "close_browser", {});
+          await sandbox.files.write(this.controllerPath, CLOUD_BROWSER_CONTROLLER, requestOptions);
+          await assertCleanupActive(control);
+          await this.runControllerCommand(sandbox, "close_browser", {}, control);
         } finally {
-          await sandbox.kill();
+          await assertCleanupActive(control);
+          await sandbox.kill(requestOptions);
         }
       }
       if (userHash && process.env.BROWSERLESS_API_TOKEN) {
@@ -545,9 +552,11 @@ export class BrowserlessCloudBrowserProvider {
         if (!["production-sfo.browserless.io", "production-lon.browserless.io", "production-ams.browserless.io"].includes(host)) throw new Error("Unsupported Browserless region");
         const url = new URL(`/profile/dash-${installationNamespace()}-${userHash}`, `https://${host}`);
         url.searchParams.set("token", process.env.BROWSERLESS_API_TOKEN);
-        const response = await fetch(url, { method: "DELETE", signal: AbortSignal.timeout(30_000) });
+        await assertCleanupActive(control);
+        const response = await fetch(url, { method: "DELETE", signal: control ? AbortSignal.any([control.signal, AbortSignal.timeout(10_000)]) : AbortSignal.timeout(30_000) });
         if (!response.ok && response.status !== 404) throw new Error(`Browser profile deletion failed (HTTP ${response.status})`);
       }
+      await assertCleanupActive(control);
       this.account.sandbox = null;
       this.account.sandboxId = null;
       this.account.initialization = null;
@@ -711,7 +720,8 @@ export class BrowserlessCloudBrowserProvider {
     this.attachedSandboxId = sandboxId;
   }
 
-  private async runControllerCommand<T>(sandbox: ControllerSandbox, operation: string, payload: Record<string, unknown>) {
+  private async runControllerCommand<T>(sandbox: ControllerSandbox, operation: string, payload: Record<string, unknown>, control?: CleanupControl) {
+    await assertCleanupActive(control);
     await assertExecutionOwnership();
     const operationId = randomUUID();
     const requestPath = `${ROOT}/request-${operationId}.json`;
@@ -723,11 +733,14 @@ export class BrowserlessCloudBrowserProvider {
     if (!inlineRequest) await sandbox.files.write(requestPath, request);
     try {
       await assertExecutionOwnership();
+      const cursorColor = control ? "#477BE0" : await this.conversationCursorColor();
+      await assertCleanupActive(control);
       const result = await sandbox.commands.run(`python3 ${this.controllerPath} ${requestPath}`, {
-        timeoutMs: 90_000,
+        timeoutMs: control ? 15_000 : 90_000,
+        ...(control ? { signal: control.signal, requestTimeoutMs: 10_000 } : {}),
         envs: {
           ...(inlineRequest ? { DASH_BROWSER_REQUEST: request } : {}),
-          DASH_CURSOR_COLOR: await this.conversationCursorColor(),
+          DASH_CURSOR_COLOR: cursorColor,
           BROWSERLESS_API_TOKEN: process.env.BROWSERLESS_API_TOKEN!,
           BROWSERLESS_HOST: process.env.BROWSERLESS_HOST || "production-sfo.browserless.io",
           BROWSERLESS_PROFILE: `dash-${installationNamespace()}-${this.account.userHash}`,

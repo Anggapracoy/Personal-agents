@@ -1,3 +1,4 @@
+import { assertProductionAuthSecret } from "./secret-validation";
 import { googleOAuthOrigin } from "./google-oauth-origin";
 import { createHash, randomBytes } from "node:crypto";
 import { decode, encode } from "next-auth/jwt";
@@ -25,6 +26,7 @@ export type MobileGoogleConnectionState = {
 function configuration() {
   const clientId = process.env.AUTH_GOOGLE_ID;
   const authSecret = process.env.AUTH_SECRET;
+  assertProductionAuthSecret(authSecret);
   if (!clientId || !authSecret) throw new Error("Mobile Google reconnect is not configured.");
   return { clientId, authSecret };
 }

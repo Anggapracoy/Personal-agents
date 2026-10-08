@@ -2,17 +2,17 @@
 
 ## Decision
 
-Keep the repository private for now. The release repository is fresh, Git history is cleaned, and current source uses licensed replacements. One confirmed code issue remains before publication: unauthenticated mobile handoff creation. The GitHub object-retention issue described below has been resolved for the release repository.
+The confirmed source-code blocker is fixed. The release repository is fresh, its history is cleaned, and current source uses licensed replacements. Local verification is complete; live provider qualification was deferred by the maintainer. Keep the repository private until publication is explicitly authorized, then enable private vulnerability reporting.
 
 ## Confirmed findings
 
-### P2: mobile finish accepts an invalid session cookie
+### Fixed: mobile finish accepted an invalid session cookie
 
 `app/api/mobile/auth/finish/route.ts` checks only whether the session-token cookie exists before calling `createMobileAuthHandoff`. It does not ask Auth.js to verify the session or check revocation first, and has no handoff quota.
 
 Reproduced against the production build with a disposable PostgreSQL database and no live provider credentials: `/api/auth/session` returned null for a synthetic invalid cookie; `/api/mobile/auth/finish` with that same cookie and a correctly formatted device challenge returned 302 with a handoff code and created one database record. This proves unauthenticated database writes and potential resource abuse. It does **not** prove account takeover: the invalid session still fails Auth.js validation.
 
-Before publication, verify the authenticated session before creating the handoff and add a bounded per-account handoff quota. Cover invalid/revoked cookies, no cookie, a valid bound handoff, and replay. Preserve the existing verifier binding and Apple callback behavior.
+Fixed: Auth.js validates the session and revocation state before any handoff write. Raw cookie recovery supports Auth.js chunking. The endpoint enforces six handoffs per minute and thirty per hour per authenticated account. Production HTTP tests verified invalid/missing/revoked cookies create zero records, valid/chunked sessions work, a seventh request is rejected, and wrong-verifier/replay attempts fail.
 
 ### Closed: GitHub retained removed objects despite cleaned history
 
@@ -26,15 +26,15 @@ Reference: https://docs.github.com/en/authentication/keeping-your-account-and-da
 
 ## Recommended hardening and operational work
 
-- Add production configuration validation for known placeholder `AUTH_SECRET` values. The example value currently meets the encryption helper's minimum-length check. This is a misconfiguration risk, not an exploit demonstrated against a properly configured installation. The README already instructs operators to generate a unique random secret.
-- Bound/fence external deletion cleanup below its five-minute lease. Google and Composio calls have deadlines, but browser cleanup can perform a sequence of provider operations. A slow self-hosted worker could outlive its lease; stale cleanup must not delete a newly created profile after another worker finishes. This is a conditional race/hardening concern, not a demonstrated live-provider failure.
+- Implemented runtime production validation: missing, short, known placeholder and single-character repeated secrets are rejected before Auth.js authentication, OAuth state generation or credential encryption. Production requires a unique random secret of at least 32 characters. Builds remain possible without deployment secrets.
+- Implemented deletion cleanup fencing: a shared two-minute deadline stays below the five-minute lease; SDK/fetch requests receive abort signals and bounded timeouts. Destructive operations check the lease immediately before mutation, and completion uses the lease token and expiry. Cancellation, deadline expiry and superseded-worker tests verify late continuations cannot mutate and pending-account locks remain intact. Malformed jobs remain retryable without starving later jobs.
 - Enable and verify private vulnerability reporting when the public repository supports it. SECURITY.md is present; the previous enable/query attempts while private returned 404.
 - Qualify real Google/Apple OAuth, supported provider APIs, APNs and signed-device installation on an isolated deployment. No paid or externally visible operations were run for this review. Provider-side spending limits and account access policy remain operator responsibilities.
 - A CONTRIBUTING.md and issue templates would improve contributor onboarding; these are optional and do not block source publication.
 
 ## Verified / not new findings
 
-- Latest cleaned source commit: `81810cf`. GitHub Source checks and database jobs both passed: https://github.com/mg272011/Dash-opensource-private-archive/actions/runs/37841306442 .
+- Current GitHub checks are published at https://github.com/mg272011/Dash-opensource/actions/workflows/checks.yml . Earlier cleanup and asset builds passed; the final hardening changes were separately verified locally.
 - Full dependency audit reports zero known vulnerabilities.
 - All five reachable commits were scanned with Gitleaks. Only the two existing synthetic-token fixture matches remain.
 - Fresh startup migration sequence applied all 34 listed scripts to a disposable local PostgreSQL server.
@@ -44,4 +44,4 @@ Reference: https://docs.github.com/en/authentication/keeping-your-account-and-da
 - Ownership checks, body limits, bound secret release, DNS-pinned fetches, escaped artifact filenames and static SVG rendering were reinspected. No additional confirmed bypass was found in this bounded pass.
 - Landing, Terms and Privacy remain included. Source publication and application deployment remain separate steps.
 
-This is a bounded engineering review, not a guarantee that the software or every operator configuration is free of vulnerabilities. The reproduced authentication finding should be fixed before publishing.
+This is a bounded engineering review, not a guarantee that the software or every operator configuration is free of vulnerabilities. The reproduced authentication finding has been fixed and regression-checked. Live OAuth/provider qualification is a remaining operator deployment task, not a claim made by the source release.

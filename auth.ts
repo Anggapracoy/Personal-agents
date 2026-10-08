@@ -1,5 +1,6 @@
 
 import NextAuth from "next-auth";
+import { assertProductionAuthSecret } from './lib/auth/secret-validation';
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import Apple from "next-auth/providers/apple";
@@ -10,7 +11,9 @@ import { isAccountDeletionPending, isSessionRevoked, newSessionIdentity, revokeS
 export const googleAuthEnabled = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
 const appleAuthEnabled = Boolean(process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET);
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth(() => {
+  assertProductionAuthSecret(process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET);
+  return {
   trustHost: true,
   cookies: {
     sessionToken: { name: "decision-feed.session-token", options: { httpOnly: true, sameSite: "lax", path: "/", secure: process.env.NODE_ENV === "production" } },
@@ -112,8 +115,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           method: "POST",
           headers: { "content-type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({ client_id: process.env.AUTH_GOOGLE_ID ?? "", client_secret: process.env.AUTH_GOOGLE_SECRET ?? "", grant_type: "refresh_token", refresh_token: token.refreshToken }),
-        });
-        if (response.ok) {
+          signal: AbortSignal.timeout(8_000),
+        }).catch(() => null);
+        if (response?.ok) {
           const refreshed = await response.json() as { access_token: string; expires_in: number; refresh_token?: string };
           token.accessToken = refreshed.access_token;
           token.accessTokenExpires = Date.now() + refreshed.expires_in * 1000;
@@ -127,4 +131,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return Object.assign(session, { accessToken: token.authProvider === "google" ? token.accessToken : undefined, authProvider: token.authProvider });
     },
   },
+  };
 });
