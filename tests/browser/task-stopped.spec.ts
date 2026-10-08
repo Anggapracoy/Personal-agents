@@ -1,0 +1,26 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const {buildSync}=createRequire(require.resolve('tsx'))('esbuild');
+const bundle=buildSync({entryPoints:['tests/browser/fixtures/task-stopped.tsx'],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',define:{'process.env.NODE_ENV':'"development"'}}).outputFiles[0].text;
+test('stopped task restarts the same conversation with busy and retry-error feedback',async({page})=>{
+ await page.route('**/task-stopped-fixture',route=>route.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width, initial-scale=1"><div id="root"></div>'}));
+ await page.goto('/task-stopped-fixture');
+ for(const path of ['app/brand-tokens.css','app/wdyt.css'])await page.addStyleTag({content:readFileSync(path,'utf8')});
+ await page.addScriptTag({content:bundle});
+ const restart=page.getByRole('button',{name:'Restart task',exact:true});
+ await expect(restart).toBeVisible();
+ await expect(page.getByText('Task stopped',{exact:true})).toBeVisible();
+ await expect(page.getByText('You stopped this task.',{exact:true})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Try again',exact:true})).toHaveCount(0);
+ await page.screenshot({path:'/tmp/dash-task-stopped-implemented.png'});
+ await restart.click();
+ await expect(restart).toBeDisabled();
+ await expect(restart).toHaveAttribute('aria-busy','true');
+ expect(await page.evaluate(()=>(window as any).retryCalls.map((args:any[])=>args[2]))).toEqual(['stopped-run']);
+ await page.evaluate(()=>(window as any).finishRetry(false));
+ await expect(page.getByRole('alert')).toHaveText('The agent could not start. Try again.');
+ await expect(restart).toBeEnabled();
+ await expect(page.getByText('i’ll order you another bag',{exact:true})).toBeVisible();
+});

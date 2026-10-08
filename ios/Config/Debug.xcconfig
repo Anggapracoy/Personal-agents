@@ -1,0 +1,5 @@
+#include "Shared.xcconfig"
+
+DECISION_FEED_BASE_HOST = localhost
+DECISION_FEED_BASE_URL = http:/$()/localhost:3000
+APS_ENVIRONMENT = development

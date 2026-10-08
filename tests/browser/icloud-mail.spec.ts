@@ -1,0 +1,60 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { buildSync } = createRequire(require.resolve('tsx'))('esbuild');
+const bundle = buildSync({ entryPoints: ['tests/browser/fixtures/icloud-mail.tsx'], bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"development"' } }).outputFiles[0].text;
+test('iCloud connection stays separate from chat, clears its password and shows account controls', async ({ page }) => {
+  let connected = false;
+  await page.route('**/?icloudFixture=1', route => route.fulfill({ contentType: 'text/html', body: '<meta name="viewport" content="width=device-width, initial-scale=1"><div id="root"></div>' }));
+  await page.route('**/api/connections',route=>route.fulfill({json:{accounts:[{id:'google-fixture',email:'fixture@gmail.com',enabled:true,needsReconnect:false}]}}));
+  await page.route('**/api/connections/composio*',route=>route.fulfill({json:{items:[],configured:true,nextCursor:null}}));
+  await page.route('**/api/connections/icloud*', async route => {
+    if (route.request().method() === 'POST') {
+      expect(route.request().postDataJSON()).toEqual({ ownerEmail: 'owner@test.invalid', email: 'fixture@icloud.com', password: 'abcd-efgh-ijkl-mnop' });
+      connected = true; return route.fulfill({ json: { account: { id: 'test', email: 'fixture@icloud.com' }, scanQueued: true } });
+    }
+    if (route.request().method() === 'DELETE') { connected = false; return route.fulfill({ json: { disconnected: true } }); }
+    return route.fulfill({ json: { accounts: connected ? [{ id: 'test', email: 'fixture@icloud.com', enabled: true, needsReconnect: false }] : [] } });
+  });
+  await page.goto('/?icloudFixture=1');
+  await page.addStyleTag({ content: readFileSync('app/brand-tokens.css','utf8') });
+  await page.addStyleTag({ content: readFileSync('app/wdyt.css','utf8') });
+  await page.addScriptTag({ content: bundle });
+  const mail = page.locator('.wd-icloud-source');
+  await expect(mail.locator('xpath=ancestor::section[1]')).toHaveClass(/wd-apple-sources/);
+  await expect(page.locator('.wd-google-connectors')).toBeVisible();
+  await expect(page.getByRole('button',{name:'Open Settings for Contacts',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Open Settings for Contacts',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).settingsMessages.some((message:any)=>message.action==='openSystemSettings'))).toBe(true);
+  await expect(page.getByLabel('Limited access',{exact:true})).toBeVisible();
+  await page.screenshot({path:'/tmp/dash-connected-apps-grouped.png'});
+  await mail.getByRole('button', { name: 'Connect', exact: true }).click();
+  await expect(page.getByLabel('App-specific password')).toHaveAttribute('type', 'password');
+  await expect(page.getByRole('link', { name: 'Open Apple account settings' })).toHaveAttribute('href', 'https://account.apple.com/');
+  await page.getByLabel('iCloud email').fill('fixture@icloud.com');
+  await page.getByLabel('App-specific password').fill('abcd-efgh-ijkl-mnop');
+  await page.getByRole('button', { name: 'Connect iCloud Mail', exact: true }).click();
+  await expect(page.getByLabel('App-specific password')).toHaveCount(0);
+  await expect(mail.locator('details')).toHaveAttribute('open','');
+  await mail.locator('summary').click();
+  await mail.locator('summary').click();
+  await expect(page.getByText('fixture@icloud.com')).toBeVisible();
+  await expect(mail.getByText('Connected', { exact: true })).toBeVisible();
+  await page.screenshot({ path: '/tmp/dash-icloud-connected-apps.png' });
+  await mail.getByRole('button', { name: 'Disconnect', exact: true }).click();
+  await expect(page.getByText('fixture@icloud.com')).toHaveCount(0);
+  await mail.getByRole('button', { name: 'Connect', exact: true }).click();
+  await expect(page.getByLabel('App-specific password')).toHaveValue('');
+  await page.screenshot({ path: '/tmp/dash-icloud-connection-form.png' });
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  await expect(page.getByLabel('App-specific password')).toHaveCount(0);
+  await page.getByLabel('Search apps').fill('Google');
+  await expect(page.getByRole('heading',{name:'Apple',exact:true})).not.toBeVisible();
+  await expect(page.getByRole('heading',{name:'Google',exact:true})).toBeVisible();
+  await page.getByLabel('Search apps').fill('');
+  await mail.getByRole('button',{name:'Connect',exact:true}).click();
+  await page.getByLabel('App-specific password').fill('abcd-efgh-ijkl-mnop');
+  await page.evaluate(()=>(window as any).settingsFixture.setOwner('different@test.invalid'));
+  await expect(page.getByLabel('App-specific password')).toHaveCount(0);
+});

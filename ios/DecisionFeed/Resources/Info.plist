@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>INSendMessageIntent</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Dash</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>DECISION_FEED_ALLOWED_HOSTS</key>
+	<string>$(DECISION_FEED_ALLOWED_HOSTS)</string>
+	<key>DECISION_FEED_BASE_URL</key>
+	<string>$(DECISION_FEED_BASE_URL)</string>
+	<key>DECISION_FEED_WRAPPER_VERSION</key>
+	<string>$(DECISION_FEED_WRAPPER_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Dash reads your calendars to surface schedule conflicts and decisions that need your attention.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>With Always, Dash can help at the right moment, like telling you when to leave or reminding you about a return when you’re near the store. Your location history stays on this iPhone; Dash only receives moments like “arrived home.”</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Dash uses your location when you choose to attach it to a conversation or set your home city, so it can help with nearby places, weather, and travel.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Dash uses your camera when you choose to take a photo to attach to a conversation. Photos are not saved to your photo library.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Dash saves photos from your conversations when you tap the download button.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Dash uses your microphone only when you choose to dictate a task or instruction.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>decisionfeed</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Dash reads and updates reminders when you connect Reminders in Settings and ask for help with your tasks.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Dash finds and updates people you allow when you connect Contacts in Settings.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Dash reads the photos you allow and organizes albums when you connect Photos in Settings.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Dash reads the health data you choose to answer your sleep, hydration and fitness questions. Sharing with Dash for an answer requires your confirmation.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Dash saves water intake to Health when you ask and approve the entry.</string>
+	<key>NSHomeKitUsageDescription</key>
+	<string>Dash reads your accessories and runs the home actions you approve after you connect Apple Home in Settings.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Dash searches your library, creates playlists and plays music when you connect Apple Music in Settings.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Dash reads recent steps and activity for your fitness questions after you connect Motion in Settings.</string>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Dash schedules alarms and timers you request and approve after connecting Alarms in Settings.</string>
+</dict>
+</plist>

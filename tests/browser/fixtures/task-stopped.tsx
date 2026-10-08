@@ -1,0 +1,10 @@
+import {createRoot} from 'react-dom/client';
+import {TaskRoute, type TaskActions} from '../../../app/task-route';
+import type {AgentRunSnapshot} from '../../../lib/harness/types';
+const w=window as any;
+w.retryCalls=[];
+const now='2026-10-03T19:03:00Z';
+const snapshot: AgentRunSnapshot={id:'stopped-run',userId:'fixture',decisionId:null,category:'shopping',request:'Order it again',title:'Natura order',response:'',result:null,status:'cancelled',metadata:{},error:null,createdAt:now,updatedAt:now,completedAt:now,actions:[],artifacts:[]};
+const items=[{id:'user',kind:'user' as const,text:'Good. Order it again',createdAt:now},{id:'agent',kind:'agent' as const,text:'i’ll order you another bag',createdAt:now}];
+const actions={onBack(){},onSnapshot(){},onRetry:async(...args:unknown[])=>{w.retryCalls.push(args);return new Promise<boolean>(resolve=>{w.finishRetry=resolve;});}} as unknown as TaskActions;
+createRoot(document.getElementById('root')!).render(<div className="wd"><div className="wd-front-layer"><TaskRoute id={snapshot.id} decisions={[]} tasks={[]} history={[]} snapshots={new Map([[snapshot.id,snapshot]])} messageCache={new Map([[snapshot.id,items]])} previewMode actions={actions}/></div></div>);

@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {keepControllerAlive} from '../lib/harness/browser/controller-lease';
+test('controller lease coalesces refreshes without shortening idle time or hiding failures', async()=>{
+ const durations:number[]=[];
+ let release:()=>void=()=>{};
+ const sandbox={setTimeout:async(ms:number)=>{durations.push(ms);await new Promise<void>(resolve=>{release=resolve})}};
+ const first=keepControllerAlive(sandbox,1_800_000,0);
+ const concurrent=keepControllerAlive(sandbox,1_800_000,1);
+ assert.equal(durations.length,1);release();await Promise.all([first,concurrent]);
+ await keepControllerAlive(sandbox,1_800_000,29_999);
+ assert.equal(durations.length,1);
+ assert.ok(durations[0]-29_999>=1_800_000);
+ const next=keepControllerAlive(sandbox,1_800_000,30_000);
+ assert.equal(durations.length,2);release();await next;
+ let attempts=0;
+ const failed={setTimeout:async()=>{if(++attempts===1)throw Error('unavailable')}};
+ await assert.rejects(keepControllerAlive(failed,1_800_000,0),/unavailable/);
+ await keepControllerAlive(failed,1_800_000,1);
+ assert.equal(attempts,2);
+});

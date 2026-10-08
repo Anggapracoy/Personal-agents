@@ -1,0 +1,21 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+test('ink button families gain gloss without geometry changes; secondary and disabled states remain intact',async({page})=>{
+ await page.route('**/ink-style-fixture',r=>r.fulfill({contentType:'text/html',body:`<div class="wd" style="padding:24px"><button class="wd-btn is-primary">Continue</button><div class="wd-card-actions"><button class="wd-btn is-primary">Allow</button><button class="wd-btn is-secondary">Not now</button></div><button class="wd-chip-btn is-on">Selected</button><div class="wd-people-empty"><button>Add person</button></div><div class="wd-proactive-actions"><button aria-pressed="true">Choice</button></div><div class="wd-composer"><button class="voice-input-stop">Done</button></div><div class="admin-dashboard"><button class="admin-button is-primary">Save</button><div class="admin-login-card"><button>Sign in</button></div></div><button class="wd-btn is-primary" disabled>Working</button></div>`}));
+ await page.goto('/ink-style-fixture');
+ for(const file of ['app/brand-tokens.css','app/wdyt.css','app/admin-erjkfh23lrjghrjk959584/admin.css'])await page.addStyleTag({content:readFileSync(file,'utf8')});
+ const buttons=page.locator('button');
+ const geometry=()=>buttons.evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]}));
+ const before=await geometry();
+ const secondary=page.locator('.is-secondary');const secondaryBg=await secondary.evaluate(e=>getComputedStyle(e).backgroundColor);
+ const disabled=page.locator('button:disabled');await expect(disabled).toHaveCSS('opacity','0.45');const disabledOpacity=await disabled.evaluate(e=>getComputedStyle(e).opacity);
+ await page.addStyleTag({content:readFileSync('public/ink-glass.css','utf8')});
+ expect(await geometry()).toEqual(before);
+ const primary=page.locator('button:not(.is-secondary)');
+ expect(await primary.evaluateAll(es=>es.every(e=>getComputedStyle(e).backgroundImage.includes('linear-gradient')))).toBe(true);
+ expect(await secondary.evaluate(e=>getComputedStyle(e).backgroundColor)).toBe(secondaryBg);
+ expect(await disabled.evaluate(e=>getComputedStyle(e).opacity)).toBe(disabledOpacity);
+ await page.evaluate(()=>document.documentElement.dataset.appearance='dark');
+ expect(await page.locator('.wd-btn.is-primary').first().evaluate(e=>getComputedStyle(e).color)).toBe('rgb(0, 0, 0)');
+ expect(await primary.evaluateAll(es=>es.every(e=>getComputedStyle(e).backgroundImage.includes('linear-gradient')))).toBe(true);
+});

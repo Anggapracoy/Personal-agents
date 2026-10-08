@@ -1,0 +1,5 @@
+#include "Shared.xcconfig"
+
+DECISION_FEED_BASE_HOST = dash.example.invalid
+DECISION_FEED_BASE_URL = https:/$()/dash.example.invalid
+APS_ENVIRONMENT = production

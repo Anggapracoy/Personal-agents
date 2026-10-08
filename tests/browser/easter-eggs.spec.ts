@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+test.use({launchOptions:{channel:undefined}});
+const require = createRequire(import.meta.url);
+const {buildSync}=createRequire(require.resolve('tsx'))('esbuild');
+const bundle=buildSync({entryPoints:['tests/browser/fixtures/easter-eggs.tsx'],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',define:{'process.env.NODE_ENV':'"development"'}}).outputFiles[0].text;
+const html=`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>${readFileSync('app/brand-tokens.css','utf8')}\n${readFileSync('app/wdyt.css','utf8')}</style><div id="root"></div><script>${bundle.replaceAll('</script','<\\/script')}</script>`;
+test('confetti stays transparent, finite, interactive and retry safe',async({page})=>{
+ await page.route('**/confetti-test',r=>r.fulfill({contentType:'text/html',body:html}));await page.goto('/confetti-test');
+ const event={id:crypto.randomUUID(),requestMessageId:'request',createdAt:new Date().toISOString()};
+ await page.getByPlaceholder('Reply…').focus();await page.evaluate(e=>(window as any).easterEggTest.fire(e),event);
+ await expect(page.locator('[data-dash-confetti]')).toBeVisible();
+ await expect(page.locator('[data-dash-confetti] canvas')).toHaveCount(0);
+ await expect(page.locator('[data-dash-confetti] > span')).toHaveCount(220);
+ expect(await page.locator('[data-dash-confetti]').evaluate(e=>getComputedStyle(e).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+ await page.getByPlaceholder('Reply…').fill('Still typing');
+ await expect(page.getByPlaceholder('Reply…')).toHaveValue('Still typing');
+ await expect(page.locator('[data-dash-confetti]')).toHaveCount(0,{timeout:6000});
+ await page.evaluate(e=>(window as any).easterEggTest.fire({...e}),event);await page.waitForTimeout(150);await expect(page.locator('[data-dash-confetti]')).toHaveCount(0);
+ await page.evaluate(()=>(window as any).easterEggTest.fire());await expect(page.locator('[data-dash-confetti]')).toBeVisible();
+ await page.emulateMedia({reducedMotion:'reduce'});await expect(page.locator('[data-dash-confetti]')).toHaveCount(0);
+ await page.evaluate(()=>(window as any).easterEggTest.fire());await expect(page.locator('[data-dash-confetti]')).toHaveCount(0);
+});
+
+for(const effect of ['disco','snow','flip','67'] as const) test(`${effect} plays once, stays interactive, restores its target and respects motion preferences`,async({page})=>{
+ await page.route('**/easteregg-test*',r=>r.fulfill({contentType:'text/html',body:html}));await page.goto(`/easteregg-test?effect=${effect}`);await page.getByPlaceholder("Reply…").waitFor();
+ const event={id:crypto.randomUUID(),requestMessageId:'request',createdAt:new Date().toISOString(),effect};
+ await page.evaluate(e=>(window as any).easterEggTest.fire(e),event);
+ await expect(page.locator(`[data-dash-easteregg="${effect}"]`)).toBeVisible();
+ await page.getByPlaceholder('Reply…').fill('Still typing');await expect(page.getByPlaceholder('Reply…')).toHaveValue('Still typing');
+ await expect(page.locator('[data-dash-easteregg]')).toHaveCount(0,{timeout:8000});
+ if(effect==='67') expect(await page.locator('.wd-front-layer').evaluate(e=>getComputedStyle(e).transform)).toBe('none');
+ await expect(page.locator('.wd-taskbar-title > .wd-icon')).toBeVisible();
+ await page.evaluate(e=>(window as any).easterEggTest.fire({...e}),event);await page.waitForTimeout(100);await expect(page.locator('[data-dash-easteregg]')).toHaveCount(0);
+ await page.evaluate(e=>(window as any).easterEggTest.fire({...e,id:crypto.randomUUID()}),event);await expect(page.locator('[data-dash-easteregg]')).toBeVisible();
+ await page.emulateMedia({reducedMotion:'reduce'});await expect(page.locator('[data-dash-easteregg]')).toHaveCount(0);await expect(page.locator('.wd-taskbar-title > .wd-icon')).toBeVisible();
+ if(effect==='67') expect(await page.locator('.wd-front-layer').evaluate(e=>getComputedStyle(e).transform)).toBe('none');
+ await page.evaluate(e=>(window as any).easterEggTest.fire({...e,id:crypto.randomUUID()}),event);await expect(page.locator('[data-dash-easteregg]')).toHaveCount(0);
+});

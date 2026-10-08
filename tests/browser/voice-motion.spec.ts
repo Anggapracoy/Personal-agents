@@ -1,0 +1,31 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { buildSync } = createRequire(require.resolve('tsx'))('esbuild');
+const bundle = buildSync({ entryPoints: ['tests/browser/fixtures/voice-cancel.tsx'], bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"development"' } }).outputFiles[0].text;
+test('dictation interpolates audio bars and fades to processing', async ({ page }) => {
+ await page.route('**/voice-motion-fixture', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
+ await page.goto('/voice-motion-fixture');
+ for (const path of ['app/brand-tokens.css', 'app/wdyt.css']) await page.addStyleTag({ content: readFileSync(path, 'utf8') });
+ await page.evaluate(() => {
+  const w = window as any; w.amplitude = 0;
+  Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia: async () => ({ getTracks: () => [{ stop() {} }] }) } });
+  w.AudioContext = class { resume(){return Promise.resolve()} close(){return Promise.resolve()} createMediaStreamSource(){return {connect(){}}} createAnalyser(){return {fftSize:256,getByteTimeDomainData(a:Uint8Array){a.fill(128+w.amplitude)}}} };
+  w.MediaRecorder = class extends EventTarget { static isTypeSupported(){return true} state='inactive';mimeType='audio/mp4';start(){this.state='recording'}stop(){this.state='inactive';queueMicrotask(()=>{this.dispatchEvent(Object.assign(new Event('dataavailable'),{data:new Blob(['a'.repeat(500)])}));this.dispatchEvent(new Event('stop'))})} };
+  w.fetch = () => new Promise(() => {});
+ });
+ await page.addScriptTag({ content: bundle });
+ await page.getByRole('button', { name: 'Use voice input' }).click();
+ await expect(page.locator('.voice-input-meter')).toHaveAttribute('data-recording', 'true');
+ const bar = page.locator('.voice-input-waveform g rect').last();
+ await expect(bar).toHaveCSS('transition-duration', '0.08s');
+ await page.evaluate(() => { (window as any).amplitude = 20; });
+ await expect.poll(() => bar.evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m22)).toBeGreaterThan(0.5);
+ await page.screenshot({ path: '/tmp/dash-smooth-audio.png' });
+ await page.getByRole('button', { name: 'Finish dictation' }).click();
+ await expect(page.locator('.voice-input-waveform')).toHaveCSS('opacity', '0');
+ await expect(page.locator('.voice-input-processing')).toHaveText('Transcribing…');
+ await page.emulateMedia({ reducedMotion: 'reduce' });
+ await expect(bar).toHaveCSS('transition-duration', '0s');
+});

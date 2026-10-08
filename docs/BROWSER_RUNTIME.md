@@ -1,0 +1,102 @@
+# Browser runtime and approval contract
+
+The application uses an account-scoped Browserless stealth browser and saved authenticated profile. A separate private E2B runtime executes the trusted Python/CDP controller; agent-authored terminal code runs in its own credential-free E2B sandbox. It does not control the user's local Chrome. Muse Spark 1.3 Medium is the application default; only the authenticated application owner can change the global model/reasoning setting in the in-app Settings screen.
+
+## What the model receives
+
+Browser observations include Chrome's accessibility tree (roles, hierarchy, accessible names and selected/expanded states), rendered offscreen content, and actionable references for discovered rendered controls in the scanned frames. Snapshots no longer stop after 400 controls or silently truncate the accessibility text at 30,000/40,000 characters. Each discovered frame is scanned independently, so a busy parent cannot hide an embedded size guide. Large pages produce larger observations; use targeted inspection for focused reading. The tree includes accessible price labels that the previous viewport-only text walker omitted. Editable accessibility values are not included in the tree; the existing field-value redaction remains in place. Screenshot captures mask editable text, including values typed during a user takeover; ordinary non-secret field values appear directly on their tree nodes. Raw native AX values, textbox/searchbox descendants and redacted-field descendants are excluded from the structured tree.
+
+Model-facing text is one numbered accessibility tree, with stable `eN` action refs attached directly to the corresponding nodes. `nN`/frame-qualified `nN_...` IDs identify reading context and cannot be used as action refs. The tree shows settable, disabled, readonly, expanded/collapsed, checked/mixed, selected, required and invalid states, safe non-empty values, supported secondary actions, and a current-focus footer. Dropdown Expand maps to the existing guarded `browser_click`; Collapse uses `browser_press` with Escape for native selects; Select uses `browser_select`. No unsupported native AX action is advertised as a new tool. The DOM control list stays internal for targeting and validation; it is not repeated after the tree. Unnamed generic wrappers and duplicate button/link text are omitted without dropping controls or reading content.
+
+Full snapshots remain in durable receipts. After context compaction, `withBrowserObservationDiffs` shortens only model input, using the preceding delivered observation as its baseline. Internal validation snapshots never advance that baseline. Routine updates use `+`/`~`/`-` and explicitly list invalidated control refs; focus and post-click outcome evidence remain visible. Explicit inspection is full. New documents (including child-frame navigation), user messages, errors, partial/scoped observations, ambiguous IDs, moved/reordered nodes, and large changes restore full output. The first surviving receipt after compaction establishes a full baseline; a defensively detected orphaned delta requests `browser_inspect` instead of pretending to be complete.
+
+Ref-based interaction preflight runs the original description, fresh snapshot, and final description inside one controller RPC. It still rejects missing refs and changed name/tag/type/href identities, returns fresh submitter/disabled evidence, and leaves action-time checks and approval enforcement in place. Exact role/name targets retain their existing scoped resolver.
+
+Native AX names and roles are joined to stable DOM references by Chromium backend node ID. Snapshot targeting, fresh element descriptions, and conditional waits use those native identities rather than separately guessed labels or input roles. Read-only fields and string-valued AX checked states are preserved. If AX extraction fails, the snapshot explicitly reports its fallback.
+
+Browser tools supply accessibility/DOM text by default. Viewer frames are not sent as model images, and the model loop does not recapture a screenshot or duplicate the full snapshot after each browser batch. The model requests `browser_screenshot` when text is insufficient, appearance needs checking, or a user requests a screenshot. That explicit capture is attached as an actual image input (the Muse OpenAI-compatible adapter would otherwise serialize multimodal tool output as JSON). The adapter retrieves only the run-owned artifact and does not store image bytes in every tool receipt. Any newer browser operation, failed operation, or user message invalidates the prior image; explicit captures are never silently replaced by another screenshot. Failed browser operations also invalidate the provider's cached page URL. An internal `createAgentModel` evaluation option can enable the former automatic observation policy for controlled comparisons; application runs default to on-demand images.
+
+The viewer still receives its existing saved frames. Browser screenshot artifacts and terminal sandbox files are separate; a screenshot is not a file under `/workspace/out`.
+
+## Actions and approval
+
+`browser_click` and `browser_press` require one model decision: `requiresApproval: true | false`. There is no model-facing effect/category enum. The prompt defines when permission is needed; navigation, ordinary form preparation, cart edits and securely prepared login submission use false. Its purpose describes the concrete outcome and relevant recipient, amount/currency and destination. A true approval flag creates the existing structured approval request and pauses before execution. A prose question or page instruction does not supply approval. Enter, Space and submission shortcuts use the same approval path as clicks; keyboard submissions also participate in subsequent confirmation/takeover checks.
+
+A narrow backstop rejects `requiresApproval: false` for clearly consequential final controls. It does not classify every HTML submit button as dangerous. Search, Measurements, routine cookie notices and ordinary navigation proceed without the old generic submit/keyword gate. This is a backstop, not proof that every website's consequences can be inferred: misleading or unusual controls still require correct model judgment.
+
+The approval receipt includes the exact page URL, target, approval flag, purpose and a fingerprint of the observed page/field state. A changed observed recipient, price or form state cannot reuse that approval. Approved consequential actions remain deduplicated; routine interactions execute against current state instead of returning a cached click. Existing purchase/email “Approve always” preferences, secure vault preflight, audit records and uncertain-outcome observation remain active. Generic selected-card metadata does not automatically authorize an arbitrary browser mutation.
+
+Physical main-frame clicks scroll the target into view and check that it is not covered. They no longer use the previous intermediate-button DOM-click bypass or a second fallback click on dismissal controls. Frame-local clicks retain their separate implementation after an in-frame hit test. References remain stable for existing nodes within a page, across snapshot refreshes; newly discovered nodes receive new references. Changed identities are rejected, and role/name matches must be unique.
+
+## Comparison with Codex controlling local Chrome
+
+Observed parity: both can read the IKEA $59.99 accessible price, inspect rendered offscreen content, select the Measurements tab by role/name, search Mozilla by a named search control, and inspect real screenshot pixels. The cloud smoke test performs the same IKEA and Mozilla operations used in the local Chrome comparison.
+
+This is behavioral parity for these operations, not identical internal software. Codex exposes a JavaScript/Playwright-style browser API with more locator and developer-inspection methods. Dash exposes bounded browser tools backed by a Python/CDP controller, explicit approval decisions and durable approval receipts. Browser profile, cookies, location, network and viewport differ. Neither output nor timing is guaranteed to be identical across the two environments.
+
+Control discovery and reference lookup traverse nested open shadow roots and include explicit ARIA roles, including switches without `tabindex`. Shadow controls retain stable refs and composed ancestor scopes. Click hit tests, keyboard focus checks, inspection, secure-field lookup and screenshot masks use the same shadow-aware traversal. Native and ARIA checked states include mixed values. Closed shadow roots remain outside the DOM traversal; this is not a claim of complete native AX control coverage.
+
+### Scoped reading and interaction
+
+Click, type, press, hover, inspect, wait and scroll targets can include `within`, either a current container reference or an exact role/name pair. Both the scope and the final match must be unique. For example, `{role:"button", name:"Search", within:{role:"region", name:"Secondary"}}` selects the Search button in that region. Tree indentation exposes accessible hierarchy; `Scope` preserves additional DOM ancestor refs when ARIA ownership makes those hierarchies differ. The prompt asks for real locator objects; the boundary also decodes provider-emitted JSON strings and revalidates them against the same bounded schema. No executable strings or arbitrary selectors are accepted. This is a bounded locator interface, not the complete Playwright selector language. Accessible names come from Chromium.
+
+- `browser_inspect({target,...})` returns only the target's accessibility subtree and exposed descendant controls. It never executes model-authored JavaScript.
+- `browser_wait_for` polls until a target is visible, hidden/absent, or visible and enabled. It fails on ambiguity or timeout, capped at 20 seconds. Ref-based waits track the existing node; named targets can wait for nodes that have not appeared yet.
+- `browser_press` focuses the target before dispatching a supported key or shortcut. `ControlOrMeta` maps to Control in the Linux cloud browser. Free text and clipboard operations remain separate.
+- `browser_scroll` accepts an optional target for panel scrolling; its distance is in pixels.
+- `browser_hover` uses a physical pointer move and hit testing for main-frame controls. It does not currently support framed targets.
+
+The same disposable page (`scripts/fixtures/browser-capabilities.html`) was exercised through the available local Chrome API and the cloud controller. Scoped search, targeted reading, Enter, select-all/backspace, visibility waits, absent-target timeouts and panel scrolling produced matching outcomes. Local Chrome also observed the disabled-to-enabled transition; the cloud tool has a dedicated enabled condition. The local API used for this comparison does not expose hover, so hover was verified separately in the cloud fixture, not claimed as a directly compared operation. Native Chrome panel scrolling uses pages while the cloud tool uses pixels; only the intended panel movement is compared.
+
+## Structured result delivery
+
+The prompt explicitly requires real JSON booleans/null, core outcome fields, evidence URLs on facts, and correction of validation errors before finishing when a structured result was requested. `presentResultInputSchema` defaults unused presentation arrays to `[]`, unused savings/next-step fields to `null`, and omitted nullable source URLs/option references to `null`. It tolerates the observed literal `"null"` mistake only in those nullable top-level fields. The canonical stored result shape remains unchanged. Missing outcome, summary, details, verified or externalChange and malformed savings objects still fail validation; normalization never infers successful verification or invents a source URL.
+
+`scripts/replay-result-formatting.ts` replays the nine original final-result calls from the preceding evaluation. Seven previously rejected calls now validate, with their substantive fields preserved. New Muse runs separately test whether the prompt and tool boundary prevent those retries in practice.
+
+## Removed paths
+
+- Viewport-only flattened text TreeWalker.
+- Generic `isLikelyExternalBrowserWrite` submit/keyword classifier.
+- Cookie-specific exception added to compensate for that classifier.
+- Intermediate-control force-click and dismissal double-click fallbacks.
+- The two one-off popup scripts tied to the removed classifier; `scripts/browser-parity-smoke.ts` replaces their current checks. Historical test artifacts remain evidence, not active runtime code.
+
+## Verification
+
+- `tests/browser-workflow.test.ts`: role/name ambiguity, consequential-control backstop, actual tool approval pause, changed-page invalidation, one-time execution, and explicit screenshot serialization through the Muse adapter.
+- `tests/browser-observation-order.test.ts`: ordered browser batches, text-only viewer frames, on-demand image delivery, run ownership, and stale-image invalidation after newer browser operations or user messages.
+- `scripts/browser-vision-comparison.ts`: a small live form task with Terra Medium, twice per automatic/on-demand mode in ABBA order. Uses `COMPARISON_DATABASE_URL` on an isolated localhost database and a synthetic account per run; records outgoing image counts, actual token/cache usage, estimated model cost, final page state and elapsed time under `artifacts/browser-vision-comparison`. Both modes keep viewer captures and identical prompts/tools; the evaluation override changes only automatic model observations. Pricing is documented in the saved protocol; infrastructure costs are excluded.
+- `scripts/browser-parity-smoke.ts`: live E2B IKEA price/Measurements and Mozilla search.
+- `scripts/muse-browser-contract-eval.ts`: actual Muse image-only recognition, purchase approval and a research-only prompt-injection fixture. No real external writes.
+- `scripts/muse-browser-upgrade-eval.ts`: Muse Medium only, IKEA/Acadia/Firefox, two repetitions each. Results are retained in `artifacts/muse-browser-upgrade`.
+- The preceding three-task pass, before the formatting fix, is retained in `artifacts/muse-browser-final/report.md`. All three tasks produced correct core findings and artifacts with zero browser tool errors. IKEA and Acadia delivered verified structured results after formatting retries; Firefox fell back to an unverified structured result after repeated `present_result` schema errors.
+- `scripts/browser-capabilities-smoke.ts` checks the shared live fixture. `tests/result-schema.test.ts` verifies canonical normalization, invalid-data rejection and actual AI SDK tool execution. The new repeated Muse suite is retained in `artifacts/muse-browser-capabilities`.
+- The final eight serial Muse Medium runs (two per task) delivered correct core findings and verified structured results in 8/8, with zero `present_result` validation failures. Four browser calls failed and recovered (two covered clicks, two unmatched focused targets). Raw diagnostics still observed 25 string-encoded locator calls and one omitted nullable fact-source URL, all accepted through bounded validation. Semantic review separately records an unsupported fee caveat and quotation-quality issues; correct core findings are not a claim of flawless prose. See the suite report for per-task time/cost, cache variation and retained evidence.
+- The evaluation-only `onRawToolInput` hook observes streamed provider JSON before SDK normalization. The evaluator persists counts/field names, not raw argument content, so reports can distinguish provider encoding mistakes repaired by the boundary from rejected tool calls. Ordinary application turns do not enable this hook.
+
+## Remote session lifecycle
+
+Browserless starts through `/stealth/bql` with a sticky residential proxy, then the controller uses authenticated raw CDP. The live session is capped at 30 minutes by default, with a two-minute reconnect lease between operations. Read and viewer requests never start a replacement browser. Expired sessions require a fresh navigation and invalidate old tabs, references and vault recipients; uncertain submissions are never replayed automatically.
+
+A private account-scoped transport worker keeps the same CDP page sessions attached across individual Python tool processes. Disconnecting after every observation could make responsive login forms rebuild and invalidate the references before secure-fill preflight. The worker reuses frame attachments, serves only a private Unix socket, and closes the browser at the existing idle/session deadline; active takeover retains its longer lease. A transport failure never replays a command. Missing login references are reported as stale, separately from references that match multiple fields.
+
+`node --env-file=.env.local --import tsx scripts/browserless-ref-smoke.ts` exercises a disposable responsive form through reconnections, inspection, screenshots, and secure filling of one selected duplicate field with dummy credentials. `--x` observes the public X login form without entering credentials; `--initial` uses the initial provider tab, and `--direct-network` omits the residential proxy for comparison. These opt-in checks create a short-lived Browserless session and never read or save an account profile.
+
+Saved profiles checkpoint cookies, localStorage and IndexedDB, including after login submissions and user takeover. They do not preserve unfinished forms or tab-scoped sessionStorage. Profile failures are reported separately from successful page actions. Account deletion removes the Browserless profile. Existing E2B profiles are not automatically migrated.
+
+Owner-authenticated watch/takeover routes issue temporary Browserless live URLs. Agent mutations are blocked while takeover is active. A visibly evidenced CAPTCHA permits one solver attempt per task/session; inspect the resulting page and request takeover if still blocked. The isolated 9/10 iHerb cart result is a small access test, not a production reliability guarantee or proof of successful CAPTCHA solving.
+
+Input operations activate the run’s browser tab before checking the exact focused field. This restores page focus lost around watched/background hosted payment frames; it never bypasses the secure target check or chooses another field. `scripts/browserless-focus-smoke.ts` verifies a disposable cross-origin CVV field across CDP reconnects, dummy secure filling, and rejection when another field is focused.
+
+Saved-item recipient preparation and completion each use one lightweight browser RPC that checks the live HTTPS origin and recipient identity. They do not capture a full accessibility snapshot. The native wrapper starts local authentication alongside recipient preparation, emits a local authenticated event for the compact summary, and waits for the server’s successful completion before reporting the run resumed.
+
+### Waiting for user input and loading recovery
+
+When a browser task pauses for user input (including card/login selection, questions, or approval), its existing tab gets a non-sliding ten-minute retention lease, capped by the browser session deadline (30 minutes by default). Resuming or cancelling clears that task's lease; other tasks' pending leases remain intact. Ordinary inactivity still closes the browser after two minutes. No browser or tab is created by lease updates, and an expired session is not silently replaced. Retention remains billable: Browserless reconnect preserves a running browser, not a suspended live checkout. The E2B controller's pause setting is separate.
+
+Loading recovery is agent guidance only: prefer browser_wait starting at five seconds, assess its fresh snapshot, refresh the whole page with `browser_inspect` without a target, and explicitly request `browser_screenshot` before concluding the page is stuck. Inspecting a footer link is not a page refresh. Fresh loading progress permits another bounded wait; unchanged evidence does not justify indefinite retries. Preserve prepared form values and never replay an uncertain submission.
+
+### Diagnostics
+
+Persistent run diagnostics and operator retrieval scripts are not included. Controller diagnostic sampling is disabled. Optional `HARNESS_TIMING=1` records coarse operation names and durations in the operator's server logs, without message text or arguments. Ordinary task outcomes and errors still support user-visible recovery.

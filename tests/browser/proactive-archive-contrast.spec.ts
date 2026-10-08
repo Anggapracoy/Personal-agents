@@ -1,0 +1,31 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const bundle = createRequire(require.resolve('tsx'))('esbuild').buildSync({ entryPoints: ['tests/browser/fixtures/proactive-archive-contrast.tsx'], bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"development"' } }).outputFiles[0].text;
+test('archiving another row preserves proactive contrast; its own action still dims', async ({ page }) => {
+  await page.route('**/contrast-fixture', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
+  const load = async () => {
+    await page.goto('/contrast-fixture');
+    for (const file of ['app/brand-tokens.css', 'app/wdyt.css']) await page.addStyleTag({ content: readFileSync(file, 'utf8') });
+    await page.addScriptTag({ content: bundle });
+  };
+  await load();
+  const primary = page.getByRole('button', { name: 'Find a spot', exact: true });
+  const alternative = page.getByRole('button', { name: 'Stay in', exact: true });
+  const row = page.locator('.wd-conversations .wd-row');
+  await row.scrollIntoViewIfNeeded();
+  const box = (await row.boundingBox())!;
+  await page.mouse.move(Math.min(373, box.x + box.width - 20), box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(Math.max(20, box.x + 20), box.y + box.height / 2, { steps: 12 });
+  await expect(primary).toHaveCSS('opacity', '1');
+  await page.mouse.up();
+  await expect(primary).toBeDisabled();
+  await expect(primary).toHaveCSS('opacity', '1');
+  await expect(alternative).toHaveCSS('opacity', '1');
+  await page.screenshot({ path: '/tmp/dash-proactive-archive-contrast.png' });
+  await load();
+  await primary.click();
+  await expect(page.getByRole('button', { name: 'One moment…', exact: true })).toHaveCSS('opacity', '0.5');
+});

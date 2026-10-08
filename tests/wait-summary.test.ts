@@ -1,0 +1,43 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { waitSummary, includeWaitSummaries } from "../lib/harness/wait-summary";
+import { inlineTimeline, reconcileInlineRecords } from "../app/inline-timeline";
+import { threadItems } from "../lib/harness/thread";
+import { MemoryRunStore } from "../lib/harness/store";
+import type { AgentAction } from "../lib/harness/types";
+const pause = { id: "pause-one", ready: true, reason: "Waiting for the restaurant to open", wakeAt: null, eventKind: null };
+const action = { id: "action-one", toolName: "pause", status: "executed", createdAt: "2026-09-28T12:01:00Z", input: {}, result: { saved: true, paused: true, ...pause } } as unknown as AgentAction;
+const before = { id: "before", createdAt: "2026-09-28T12:00:00Z" };
+const after = { id: "after", createdAt: "2026-09-28T13:00:00Z" };
+const ids = (items: ReturnType<typeof inlineTimeline>) => items.map(row => "item" in row ? row.item.id : row.panel.id);
+test("only saved non-call waits get receipts, with the original reason and identity", () => {
+  assert.equal(waitSummary(action)?.reason, pause.reason);
+  assert.equal(waitSummary({ ...action, status: "proposed" }), null);
+  assert.equal(waitSummary({ ...action, result: { ...action.result, saved: false } }), null);
+  assert.equal(waitSummary({ ...action, result: { ...action.result, eventKind: "phone_call" } }), null);
+  assert.equal(waitSummary(action, pause)?.activePause, pause);
+  assert.equal(waitSummary(action)?.activePause, undefined);
+});
+test("waits survive reload, repeated projection and subsequent replies without moving", () => {
+  const items = includeWaitSummaries([before, after], [action]);
+  assert.deepEqual(items.map(item => item.id), [before.id, "wait:pause-one", after.id]);
+  assert.deepEqual(includeWaitSummaries(items, [action]), items);
+  const legacy = [{ id: "pause:pause-one", summary: "Waiting ended", createdAt: after.createdAt, afterId: after.id }];
+  const records = reconcileInlineRecords(legacy, [], items, after.createdAt);
+  assert.deepEqual(ids(inlineTimeline(items, records)), [before.id, "pause:pause-one", after.id]);
+  const later = { id: "later", createdAt: "2026-09-28T14:00:00Z" };
+  assert.deepEqual(ids(inlineTimeline([...items, later], records)), [before.id, "pause:pause-one", after.id, later.id]);
+});
+test("thread projection retains a wait when its checkpoint is absent and changes only its state on resume", async () => {
+  const store = new MemoryRunStore();
+  const run = await store.createRun({ userId: "test", decisionId: null, title: "Wait", category: "social", request: "Check later", metadata: {} });
+  const snapshot = (await store.getSnapshot(run.id))!;
+  snapshot.actions = [action]; snapshot.status = "paused"; snapshot.metadata.automaticPause = pause;
+  const active = threadItems(snapshot, []);
+  assert.equal(active[0].kind, "wait");
+  assert.ok(active[0].kind === "wait" && active[0].activePause);
+  snapshot.status = "running";
+  const ended = threadItems(snapshot, []);
+  assert.equal(ended[0].id, active[0].id);
+  assert.ok(ended[0].kind === "wait" && !ended[0].activePause);
+});

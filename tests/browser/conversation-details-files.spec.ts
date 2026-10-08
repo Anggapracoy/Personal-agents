@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { buildSync } = createRequire(require.resolve('tsx'))('esbuild');
+const bundle = buildSync({ entryPoints: ['tests/browser/fixtures/conversation-details.tsx'], bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"development"' } }).outputFiles[0].text;
+
+test('shared files deduplicate, previews return to details, and failed saves retain the draft', async ({ page }) => {
+  await page.route('**/details-fixture', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
+  await page.route('**/api/files/notes', route => route.fulfill({ contentType: 'text/plain', body: 'Bring your passport.' }));
+  await page.route('**/api/files/photo', route => route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#87b5c9"/><path d="M0 320 150 90 400 350V400H0Z" fill="#c6d8d4"/></svg>' }));
+  let fail = true;
+  await page.route('**/api/save-identity', route => route.fulfill({ status: fail ? 500 : 200, json: {} }));
+  await page.goto('/details-fixture');
+  for (const path of ['app/brand-tokens.css', 'app/wdyt.css']) await page.addStyleTag({ content: readFileSync(path, 'utf8') });
+  await page.addScriptTag({ content: bundle });
+  await page.getByRole('button', { name: 'Chat details for Trip to Lisbon' }).click();
+  const panel = page.getByRole('dialog', { name: 'Chat details', exact: true });
+  await expect(panel.getByRole('link', { name: 'Open Itinerary.pdf', exact: true })).toHaveCount(1);
+  await expect(panel.getByRole('heading', { name: 'Files 3', exact: true })).toBeVisible();
+  await panel.getByRole('link', { name: 'Open Travel notes.txt', exact: true }).click();
+  await expect(page.locator('.wd-document-content')).toContainText('Bring your passport.');
+  await page.getByRole('button', { name: 'Close document', exact: true }).click();
+  await expect(panel).toBeVisible();
+  await page.screenshot({ path: 'artifacts/chat-details/shared-files.png' });
+  await panel.getByRole('button', { name: 'Edit', exact: true }).click();
+  await panel.getByRole('textbox', { name: 'Chat name', exact: true }).fill('Summer holiday');
+  await panel.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('Couldn’t save');
+  await expect(panel.getByRole('textbox', { name: 'Chat name', exact: true })).toHaveValue('Summer holiday');
+  fail = false;
+  await panel.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: 'Summer holiday', exact: true })).toBeVisible();
+  await panel.getByRole('button', { name: 'Back to chat', exact: true }).click();
+  await expect(panel).toHaveCount(0);
+});

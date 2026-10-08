@@ -1,0 +1,8 @@
+/* Shared editable-field focus: no browser ring or heavy ink border on any page. */
+:root { --field-focus-border: #a3adb8; }
+html[data-appearance="dark"] { --field-focus-border: #697582; }
+:is(input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, [contenteditable="true"]):is(:focus, :focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: var(--field-focus-border) !important;
+}

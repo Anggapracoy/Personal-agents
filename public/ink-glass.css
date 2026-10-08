@@ -1,0 +1,13 @@
+/* Shared web counterpart of the native sign-in ink-glass material. */
+:is(.wd-btn.is-primary, .wd-chip-btn.is-on, .wd-people-empty > button, .wd-proactive-actions button[aria-pressed="true"], .wd-composer .voice-input-stop, .admin-button.is-primary, .admin-login-card button, .dash-ink-button) {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--ink, #111) 85%, #fff) 0%, var(--ink, #111) 65%, color-mix(in srgb, var(--ink, #111) 94%, #000) 100%) !important;
+  box-shadow: inset 0 1px 0 #ffffff45, inset 0 -1px 0 #00000038, 0 1px 2px #00000018, 0 3px 8px #00000014 !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  backdrop-filter: blur(16px) saturate(135%);
+}
+:is(.wd-btn.is-primary, .wd-chip-btn.is-on, .wd-people-empty > button, .wd-proactive-actions button[aria-pressed="true"], .wd-composer .voice-input-stop, .admin-button.is-primary, .admin-login-card button, .dash-ink-button):active:not(:disabled) {
+  box-shadow: inset 0 1px 0 #ffffff30, inset 0 2px 4px #00000035, 0 1px 2px #00000014 !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :is(.wd-btn.is-primary, .wd-chip-btn.is-on, .wd-people-empty > button, .wd-proactive-actions button[aria-pressed="true"], .wd-composer .voice-input-stop, .admin-button.is-primary, .admin-login-card button, .dash-ink-button) { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

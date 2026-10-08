@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Browser capability parity fixture</title>
+<style>
+body{font:16px system-ui;margin:28px;max-width:900px}section{border:1px solid #aaa;padding:14px;margin:12px 0}button,input{font:inherit;padding:8px;margin:4px}#panel{height:130px;overflow:auto}#panel p{height:30px}#tooltip{display:none}#hover:hover+#tooltip{display:block}
+</style>
+<h1>Browser capability parity fixture</h1>
+<p>Disposable test page. Search and keyboard actions only update this page; no messages or purchases occur.</p>
+<section aria-label="Primary"><h2>Primary search</h2><form aria-label="Primary search form"><label>Query <input name="q" type="search"></label><button>Search</button></form><output>Primary untouched</output></section>
+<section aria-label="Secondary"><h2>Secondary search</h2><form aria-label="Secondary search form"><label>Query <input name="q" type="search"></label><button>Search</button></form><output>Secondary untouched</output></section>
+<button id="start">Start loading</button><button id="hide">Hide result</button><span id="async"></span>
+<button id="hover">Details</button><p id="tooltip" role="tooltip">Hover detail: violet 73</p>
+<section aria-label="Scrollable panel" id="panel" tabindex="0"><h2>Scrollable panel</h2><p>Panel top</p><div id="rows"></div><p>Panel bottom: amber 29</p></section>
+<p id="scroll-state" role="status">Panel not scrolled</p>
+<section aria-label="Approval fixture"><h2>Approval fixture</h2><button id="send">Send</button><output id="send-state">Sent count: 0</output></section>
+<script>
+document.querySelectorAll('form').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();form.parentElement.querySelector('output').textContent=form.parentElement.getAttribute('aria-label')+' result: '+form.elements.q.value}));
+document.querySelector('#start').onclick=()=>{document.querySelector('#async').innerHTML='<button disabled>Loaded result</button>';setTimeout(()=>document.querySelector('#async button').disabled=false,1200)};
+document.querySelector('#hide').onclick=()=>document.querySelector('#async').replaceChildren();
+document.querySelector('#rows').innerHTML=Array.from({length:15},(_,i)=>'<p>Panel row '+(i+1)+'</p>').join('');
+document.querySelector('#panel').onscroll=()=>document.querySelector('#scroll-state').textContent='Panel scroll position: '+document.querySelector('#panel').scrollTop;
+let sent=0;document.querySelector('#send').onclick=()=>document.querySelector('#send-state').textContent='Sent count: '+(++sent);
+</script></html>

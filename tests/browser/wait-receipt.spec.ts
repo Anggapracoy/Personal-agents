@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { buildSync } = createRequire(require.resolve('tsx'))('esbuild');
+const bundle = buildSync({ entryPoints: ['tests/browser/fixtures/wait-receipt.tsx'], bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"development"' } }).outputFiles[0].text;
+test('wait becomes one inline card and keeps its place after replies and a fresh reload', async ({ page }) => {
+ await page.route('**/wait-receipt-fixture', route => route.fulfill({ contentType: 'text/html', body: '<div id="root"></div>' }));
+ const mount = async (restored = false) => {
+  await page.goto('/wait-receipt-fixture');
+  await page.evaluate(restored => { (window as any).restoredWait = restored; sessionStorage.clear(); }, restored);
+  for (const path of ['app/brand-tokens.css', 'app/wdyt.css']) await page.addStyleTag({ content: readFileSync(path, 'utf8') });
+  await page.addScriptTag({ content: bundle });
+ };
+ await mount();
+ await expect(page.getByText('Waiting', { exact: true })).toBeVisible();
+ await page.evaluate(() => (window as any).waitTest.end());
+ const receipt = page.getByRole('region', { name: 'Ended wait' });
+ await expect(receipt).toHaveCount(1);
+ await expect(receipt).toContainText('Waited for the restaurant to open');
+ await expect(page.locator('.wd-inline-panel-ghost')).toHaveCount(0);
+ const top = (await receipt.boundingBox())!.y;
+ await page.evaluate(() => (window as any).waitTest.reply());
+ await expect(page.getByText('Yes, please.')).toBeVisible();
+ expect((await receipt.boundingBox())!.y).toBeCloseTo(top, 0);
+ await expect(page.locator('.wd-inline-history')).toHaveCount(0);
+ await mount(true);
+ await expect(receipt).toHaveCount(1);
+ expect((await receipt.boundingBox())!.y).toBeLessThan((await page.getByText('They’re open. I can call them now.').boundingBox())!.y);
+ await page.screenshot({ path: '/tmp/dash-wait-receipt.png' });
+ await page.evaluate(() => { document.documentElement.dataset.appearance = 'dark'; });
+ await page.screenshot({ path: '/tmp/dash-wait-receipt-dark.png' });
+});

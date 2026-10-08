@@ -1,0 +1,50 @@
+/* Full-screen browser chrome. Web and the native host share this layout. */
+.wd-browser-legacy { --browser-surface: #161414; font: inherit; color: var(--ink); }
+html .wd-sheet-root.wd-browser-legacy .cloud-browser-panel {
+  position: relative; inset: auto; z-index: 1; width: 100%; height: 100%; max-height: none; min-height: 0;
+  --browser-header-height: calc(66px + env(safe-area-inset-top));
+  display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden;
+  border: 0; border-radius: 0; background: var(--browser-surface); color: #f4f4f4; touch-action: pan-x;
+}
+.wd-browser-legacy .browser-sheet-backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .34); }
+.wd-browser-legacy .cloud-browser-panel > header {
+  display: grid; grid-template-columns: 88px minmax(0, 1fr) 88px; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 6px) 16px 10px; min-height: var(--browser-header-height);
+  border-bottom: 0; background: var(--browser-surface); touch-action: none; user-select: none;
+}
+.wd-browser-legacy button { cursor: pointer; }
+.wd-browser-legacy .browser-sheet-close {
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #2b2b2b; color: #f4f4f4;
+}
+.wd-browser-legacy .browser-sheet-close svg { width: 20px; height: 20px; }
+.wd-browser-legacy .browser-location { min-width: 0; text-align: center; }
+.wd-browser-legacy .browser-location strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: normal; }
+.wd-browser-legacy .browser-window-controls { display: flex; align-items: center; justify-content: flex-end; }
+.wd-browser-legacy .browser-external-takeover { min-height: 44px; padding: 0 2px; border: 0; border-radius: 12px; background: transparent; color: #f4f4f4; font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -.02em; white-space: nowrap; transition: opacity .12s ease; }
+.wd-browser-legacy .cloud-browser-frame { position: relative; min-height: 0; min-width: 0; margin-bottom: var(--browser-header-height); overflow: hidden; background: var(--browser-surface); }
+.wd-browser-legacy .browser-frame-zoomable { touch-action: none; }
+.wd-browser-legacy .browser-frame-pannable { cursor: grab; }
+.wd-browser-legacy .cloud-browser-frame > img, .wd-browser-legacy .cloud-browser-frame > iframe {
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none;
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block; border: 0; border-radius: 0;
+  object-fit: contain; object-position: center; background: var(--browser-surface);
+  transform: translate3d(var(--browser-frame-pan-x, 0px), var(--browser-frame-pan-y, 0px), 0) scale(var(--browser-frame-zoom, 1));
+  transform-origin: var(--browser-frame-zoom-origin, 50% 50%);
+}
+.wd-browser-legacy .browser-frame-loading, .wd-browser-legacy .browser-frame-unavailable { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; color: #d1d1d1; text-align: center; font-size: 13px; }
+.wd-browser-legacy .browser-frame-loading-overlay { position: absolute; inset: 0; z-index: 1; background: var(--browser-surface); color: #d1d1d1; }
+.wd-browser-legacy .browser-zoom-reset { position: absolute; right: 14px; bottom: 14px; z-index: 3; min-height: 44px; padding: 0 12px; border: 1px solid var(--hair); border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 12px; }
+.wd-browser-legacy button:focus-visible, .wd-browser-legacy input:focus-visible { outline: 2px solid #f4f4f4; outline-offset: 2px; }
+@media (min-width: 761px) {
+  .wd-browser-legacy .cloud-browser-panel > header { padding-inline: 20px; }
+}
+
+@media (max-width: 760px) {
+  .wd-browser-legacy .browser-frame-pannable { touch-action: none; }
+}
+
+/* Watching never consumes gestures in the embedded provider document. */
+.wd-browser-legacy .browser-frame-zoomable > iframe { pointer-events: none; }
+
+.wd-browser-legacy .browser-external-takeover:active { opacity: .55; }
+.wd-browser-legacy .browser-external-takeover:disabled { opacity: .45; }

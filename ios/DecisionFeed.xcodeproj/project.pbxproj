@@ -1,0 +1,288 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AC2200000000000000000001 /* NativeMessageMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2200000000000000000001 /* NativeMessageMenus.swift */; };
+		A10000000000000000000001 /* DecisionFeedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* DecisionFeedApp.swift */; };
+		A10000000000000000000002 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppConfiguration.swift */; };
+		A10000000000000000000003 /* BrowserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* BrowserModel.swift */; };
+		A10000000000000000000004 /* WebCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* WebCoordinator.swift */; };
+		A10000000000000000000005 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* RootView.swift */; };
+		A10000000000000000000006 /* CompatibilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* CompatibilityTests.swift */; };
+		A10000000000000000000007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* Assets.xcassets */; };
+		A10000000000000000000008 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* PrivacyInfo.xcprivacy */; };
+		A20000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* AppDelegate.swift */; };
+		A20000000000000000000002 /* NativeExperienceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* NativeExperienceManager.swift */; };
+		A20000000000000000000003 /* TaskActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* TaskActivityAttributes.swift */; };
+
+		A30000000000000000000001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000001 /* OnboardingView.swift */; };
+		A30000000000000000000002 /* SignInSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000002 /* SignInSheet.swift */; };
+		A40000000000000000000001 /* DeviceCalendarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40000000000000000000001 /* DeviceCalendarManager.swift */; };
+		A50000000000000000000001 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000001 /* ShareViewController.swift */; };
+		A50000000000000000000002 /* DecisionFeedShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B50000000000000000000004 /* DecisionFeedShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A60000000000000000000001 /* DeviceVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60000000000000000000001 /* DeviceVault.swift */; };
+		A70000000000000000000001 /* AppleConnections.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000001 /* AppleConnections.swift */; };
+		A70000000000000000000002 /* ApplePersonalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000002 /* ApplePersonalData.swift */; };
+		A70000000000000000000003 /* AppleHealthAndPlaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000003 /* AppleHealthAndPlaces.swift */; };
+		A70000000000000000000004 /* AppleHomeMusicAlarms.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000004 /* AppleHomeMusicAlarms.swift */; };
+		A70000000000000000000005 /* AppleActionJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000005 /* AppleActionJournal.swift */; };
+		A7000000000000000000000A /* ProactiveSignals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7000000000000000000000A /* ProactiveSignals.swift */; };
+		A70000000000000000000006 /* AppleConnectionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000006; };
+		A80000000000000000000001 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80000000000000000000001 /* NotificationService.swift */; };
+		A80000000000000000000002 /* DecisionFeedNotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B80000000000000000000004 /* DecisionFeedNotificationService.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+A80000000000000000000003 = {isa = PBXBuildFile; fileRef = B80000000000000000000005; };
+A90000000000000000000001 = {isa = PBXBuildFile; fileRef = B90000000000000000000001; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C10000000000000000000001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E10000000000000000000001;
+			remoteInfo = DecisionFeed;
+		};
+
+		C50000000000000000000001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E50000000000000000000001;
+			remoteInfo = DecisionFeedShareExtension;
+		};
+		C80000000000000000000001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E80000000000000000000001;
+			remoteInfo = DecisionFeedNotificationService;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BC2200000000000000000001 /* NativeMessageMenus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeMessageMenus.swift; sourceTree = "<group>"; };
+		B10000000000000000000001 /* DecisionFeedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionFeedApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* BrowserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserModel.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* WebCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCoordinator.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* CompatibilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompatibilityTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B10000000000000000000008 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		B10000000000000000000009 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		B1000000000000000000000A /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
+		B1000000000000000000000B /* DecisionFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DecisionFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000C /* DecisionFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DecisionFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B1000000000000000000000E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B20000000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* NativeExperienceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeExperienceManager.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* TaskActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskActivityAttributes.swift; sourceTree = "<group>"; };
+
+		B30000000000000000000001 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B30000000000000000000002 /* SignInSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInSheet.swift; sourceTree = "<group>"; };
+		B40000000000000000000001 /* DeviceCalendarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCalendarManager.swift; sourceTree = "<group>"; };
+		B50000000000000000000001 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		B50000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B50000000000000000000003 /* DecisionFeedShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DecisionFeedShareExtension.entitlements; sourceTree = "<group>"; };
+		B50000000000000000000004 /* DecisionFeedShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DecisionFeedShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B60000000000000000000001 /* DeviceVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceVault.swift; sourceTree = "<group>"; };
+		B70000000000000000000001 /* AppleConnections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleConnections.swift; sourceTree = "<group>"; };
+		B70000000000000000000002 /* ApplePersonalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePersonalData.swift; sourceTree = "<group>"; };
+		B70000000000000000000003 /* AppleHealthAndPlaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleHealthAndPlaces.swift; sourceTree = "<group>"; };
+		B70000000000000000000004 /* AppleHomeMusicAlarms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleHomeMusicAlarms.swift; sourceTree = "<group>"; };
+		B70000000000000000000005 /* AppleActionJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleActionJournal.swift; sourceTree = "<group>"; };
+		B7000000000000000000000A /* ProactiveSignals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProactiveSignals.swift; sourceTree = "<group>"; };
+		B70000000000000000000006 /* AppleConnectionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleConnectionsTests.swift; sourceTree = "<group>"; };
+		B80000000000000000000001 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		B80000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B80000000000000000000003 /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
+		B80000000000000000000004 /* DecisionFeedNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DecisionFeedNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+B80000000000000000000005 = {isa = PBXFileReference; lastKnownFileType = folder; path = Avatars; sourceTree = "<group>"; };
+B90000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationReply.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10000000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+
+		F50000000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F80000000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D10000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000003 /* DecisionFeed */,
+				D20000000000000000000001 /* Shared */,
+				D50000000000000000000001 /* DecisionFeedShareExtension */, D80000000000000000000001,
+				D10000000000000000000008 /* DecisionFeedTests */,
+				D10000000000000000000009 /* Config */,
+				D1000000000000000000000A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D10000000000000000000003 /* DecisionFeed */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000004 /* App */,
+				D10000000000000000000005 /* Web */,
+				D10000000000000000000006 /* Views */,
+				D10000000000000000000007 /* Resources */,
+			);
+			path = DecisionFeed;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000004 /* App */ = {isa = PBXGroup; children = (B10000000000000000000001, B10000000000000000000002, B20000000000000000000001, B90000000000000000000001, B20000000000000000000002, B40000000000000000000001, B60000000000000000000001, B70000000000000000000001, B70000000000000000000002, B70000000000000000000003, B70000000000000000000004, B70000000000000000000005, B7000000000000000000000A); path = App; sourceTree = "<group>"; };
+		D10000000000000000000005 /* Web */ = {isa = PBXGroup; children = (B10000000000000000000003, BC2200000000000000000001, B10000000000000000000004); path = Web; sourceTree = "<group>"; };
+		D10000000000000000000006 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000005, B30000000000000000000001, B30000000000000000000002); path = Views; sourceTree = "<group>"; };
+		D10000000000000000000007 /* Resources */ = {isa = PBXGroup; children = (B10000000000000000000007, B1000000000000000000000D, B1000000000000000000000E); path = Resources; sourceTree = "<group>"; };
+		D10000000000000000000008 /* DecisionFeedTests */ = {isa = PBXGroup; children = (B10000000000000000000006, B70000000000000000000006); path = DecisionFeedTests; sourceTree = "<group>"; };
+		D10000000000000000000009 /* Config */ = {isa = PBXGroup; children = (B10000000000000000000008, B10000000000000000000009, B1000000000000000000000A); path = Config; sourceTree = "<group>"; };
+		D1000000000000000000000A /* Products */ = {isa = PBXGroup; children = (B1000000000000000000000B, B1000000000000000000000C, B50000000000000000000004, B80000000000000000000004); name = Products; sourceTree = "<group>"; };
+		D20000000000000000000001 /* Shared */ = {isa = PBXGroup; children = (B20000000000000000000003); path = Shared; sourceTree = "<group>"; };
+
+		D50000000000000000000001 /* DecisionFeedShareExtension */ = {isa = PBXGroup; children = (B50000000000000000000001, B50000000000000000000002, B50000000000000000000003); path = DecisionFeedShareExtension; sourceTree = "<group>"; };
+		D80000000000000000000001 /* DecisionFeedNotificationService */ = {isa = PBXGroup; children = (B80000000000000000000001, B80000000000000000000002, B80000000000000000000003, B80000000000000000000005); path = DecisionFeedNotificationService; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* DecisionFeed */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E10000000000000000000011;
+			buildPhases = (F10000000000000000000011, F10000000000000000000001, F10000000000000000000012, F20000000000000000000013);
+			buildRules = ();
+			dependencies = (E50000000000000000000003, E80000000000000000000003);
+			name = DecisionFeed;
+			productName = DecisionFeed;
+			productReference = B1000000000000000000000B;
+			productType = "com.apple.product-type.application";
+		};
+		E10000000000000000000002 /* DecisionFeedTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E10000000000000000000012;
+			buildPhases = (F10000000000000000000013, F10000000000000000000002, F10000000000000000000014);
+			buildRules = ();
+			dependencies = (E10000000000000000000003);
+			name = DecisionFeedTests;
+			productName = DecisionFeedTests;
+			productReference = B1000000000000000000000C;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+
+		E50000000000000000000001 /* DecisionFeedShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E50000000000000000000011;
+			buildPhases = (F50000000000000000000011, F50000000000000000000001, F50000000000000000000012);
+			buildRules = ();
+			dependencies = ();
+			name = DecisionFeedShareExtension;
+			productName = DecisionFeedShareExtension;
+			productReference = B50000000000000000000004 /* DecisionFeedShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E80000000000000000000001 /* DecisionFeedNotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E80000000000000000000011;
+			buildPhases = (F80000000000000000000011, F80000000000000000000001, F80000000000000000000012);
+			buildRules = ();
+			dependencies = ();
+			name = DecisionFeedNotificationService;
+			productName = DecisionFeedNotificationService;
+			productReference = B80000000000000000000004 /* DecisionFeedNotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					E10000000000000000000001 = {CreatedOnToolsVersion = 26.3;};
+					E10000000000000000000002 = {CreatedOnToolsVersion = 26.3; TestTargetID = E10000000000000000000001;};
+
+					E50000000000000000000001 = {CreatedOnToolsVersion = 26.3;};
+				};
+			};
+			buildConfigurationList = E10000000000000000000010;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = D10000000000000000000002;
+			productRefGroup = D1000000000000000000000A;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (E10000000000000000000001, E10000000000000000000002, E50000000000000000000001, E80000000000000000000001);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F10000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000007, A10000000000000000000008); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000014 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+
+		F50000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F80000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A80000000000000000000003); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F20000000000000000000013 = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (A50000000000000000000002 /* DecisionFeedShareExtension.appex in Embed App Extensions */, A80000000000000000000002);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F10000000000000000000011 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, AC2200000000000000000001, A10000000000000000000004, A10000000000000000000005, A30000000000000000000001, A30000000000000000000002, A40000000000000000000001, A20000000000000000000001, A90000000000000000000001, A20000000000000000000002, A20000000000000000000003, A60000000000000000000001, A70000000000000000000001, A70000000000000000000002, A70000000000000000000003, A70000000000000000000004, A70000000000000000000005, A7000000000000000000000A); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000013 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000006, A70000000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
+
+		F50000000000000000000011 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A50000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
+		F80000000000000000000011 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A80000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E10000000000000000000003 = {isa = PBXTargetDependency; target = E10000000000000000000001; targetProxy = C10000000000000000000001; };
+
+		E50000000000000000000003 = {isa = PBXTargetDependency; target = E50000000000000000000001; targetProxy = C50000000000000000000001; };
+		E80000000000000000000003 = {isa = PBXTargetDependency; target = E80000000000000000000001; targetProxy = C80000000000000000000001; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		E10000000000000000000101 = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; name = Debug; };
+		E10000000000000000000102 = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; ENABLE_NS_ASSERTIONS = NO; GCC_C_LANGUAGE_STANDARD = gnu17; MTL_ENABLE_DEBUG_INFO = NO; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; VALIDATE_PRODUCT = YES;}; name = Release; };
+		E10000000000000000000103 = {isa = XCBuildConfiguration; baseConfigurationReference = B10000000000000000000008; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = DecisionFeed/DecisionFeed.entitlements; INFOPLIST_FILE = DecisionFeed/Resources/Info.plist; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES;}; name = Debug; };
+		E10000000000000000000104 = {isa = XCBuildConfiguration; baseConfigurationReference = B10000000000000000000009; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = DecisionFeed/DecisionFeed.entitlements; CODE_SIGN_STYLE = Automatic; INFOPLIST_FILE = DecisionFeed/Resources/Info.plist; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES;}; name = Release; };
+		E10000000000000000000105 = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DecisionFeed.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DecisionFeed";}; name = Debug; };
+		E10000000000000000000106 = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DecisionFeed.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DecisionFeed";}; name = Release; };
+
+		E50000000000000000000101 = {isa = XCBuildConfiguration; baseConfigurationReference = B1000000000000000000000A; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = DecisionFeedShareExtension/DecisionFeedShareExtension.entitlements; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = DecisionFeedShareExtension/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.share; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";}; name = Debug; };
+		E50000000000000000000102 = {isa = XCBuildConfiguration; baseConfigurationReference = B1000000000000000000000A; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = DecisionFeedShareExtension/DecisionFeedShareExtension.entitlements; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = DecisionFeedShareExtension/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.share; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";}; name = Release; };
+		E80000000000000000000101 = {isa = XCBuildConfiguration; baseConfigurationReference = B1000000000000000000000A; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = DecisionFeedNotificationService/NotificationService.entitlements; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = DecisionFeedNotificationService/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.notifications; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";}; name = Debug; };
+		E80000000000000000000102 = {isa = XCBuildConfiguration; baseConfigurationReference = B1000000000000000000000A; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = DecisionFeedNotificationService/NotificationService.entitlements; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = DecisionFeedNotificationService/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"; PRODUCT_BUNDLE_IDENTIFIER = com.example.dash.notifications; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E10000000000000000000010 = {isa = XCConfigurationList; buildConfigurations = (E10000000000000000000101, E10000000000000000000102); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		E10000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (E10000000000000000000103, E10000000000000000000104); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		E10000000000000000000012 = {isa = XCConfigurationList; buildConfigurations = (E10000000000000000000105, E10000000000000000000106); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+
+		E50000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (E50000000000000000000101, E50000000000000000000102); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		E80000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (E80000000000000000000101, E80000000000000000000102); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D10000000000000000000001 /* Project object */;
+}

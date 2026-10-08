@@ -1,0 +1,25 @@
+name: Register Inngest after production deployment
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-inngest-registration
+  cancel-in-progress: false
+
+jobs:
+  register:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production' && vars.APP_ORIGIN != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Register the ready production application
+        env:
+          APP_ORIGIN: ${{ vars.APP_ORIGIN }}
+        run: node scripts/sync-inngest.mjs "$APP_ORIGIN"
