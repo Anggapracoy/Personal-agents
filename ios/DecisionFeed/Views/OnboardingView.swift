@@ -486,8 +486,8 @@ private struct OnboardingExamples: View {
                                 Image("OnboardingRestaurant").resizable().scaledToFill()
                                     .frame(width: 64, height: 64).clipped().accessibilityHidden(true)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("L’Artusi").font(.system(size: 16, weight: .semibold))
-                                    Text("lartusi.com").font(.system(size: 13)).foregroundStyle(BrandColor.ink2)
+                                    Text("Willow & Vine").font(.system(size: 16, weight: .semibold))
+                                    Text("Example restaurant").font(.system(size: 13)).foregroundStyle(BrandColor.ink2)
                                 }.padding(.vertical, 8)
                                 Spacer(minLength: 0)
                             }
@@ -496,7 +496,7 @@ private struct OnboardingExamples: View {
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Example restaurant preview: L’Artusi, lartusi.com")
+                        .accessibilityLabel("Example restaurant preview: Willow & Vine, illustrative photo")
                     }
                 }
                 .foregroundStyle(outgoing ? .white : BrandColor.ink)
@@ -610,9 +610,7 @@ private struct SignalsOnboardingContent: View {
         } else if source.id == "google" {
             Image("GoogleG").resizable().scaledToFit().frame(width: 30, height: 30)
         } else if let icon = UIImage(named: "Source-\(source.id)") {
-            let paddedRaster = !["location", "alarms", "motion"].contains(source.id)
-            let canvas: CGFloat = paddedRaster ? 43.2 : 30
-            Image(uiImage: icon).resizable().scaledToFit().frame(width: canvas, height: canvas)
+            Image(uiImage: icon).resizable().scaledToFit().frame(width: 30, height: 30)
         } else {
             Image(systemName: source.id == "location" ? "location.fill" : source.id == "alarms" ? "alarm.fill" : "figure.walk")
                 .font(.system(size: 20)).foregroundStyle(.blue)

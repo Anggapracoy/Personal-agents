@@ -22,7 +22,7 @@ The reviewed baseline was commit `28db8e0`; the results below apply to the subse
 | 12 | Legacy records survive deletion | Deletion clears retired moment/delivery tables when present and the matching waitlist row. It also clears legacy user token/location/preferences fields when keeping the account. Legacy Google tokens join the encrypted revocation queue. |
 | 13 | Fixed model selections | Main provider/model and proactive/transcription models are configurable. Main environment overrides take precedence over saved global choices. Availability and supported model options require operator verification. |
 | 14 | Missing CI/security policy | GitHub workflow and SECURITY.md added. GitHub returned 404 when enabling private vulnerability reporting; verify and enable that feature before public release. The workflow runs on source pushes and pull requests; its current result is recorded in GitHub Actions. |
-| 15 | Artwork permissions | Maintainer explicitly chose to retain existing Apple icons and the restaurant photograph. Unresolved redistribution rights remain documented in THIRD_PARTY_ASSETS.md. |
+| 15 | Artwork permissions | Maintainer subsequently authorized replacement: the current source uses licensed Lucide capability tiles and a credited free Unsplash photo with a fictional venue name. Historical commits still contain the old assets; remove those historical files before public release. |
 | 16 | Provider-spending exposure | Operator cost controls and access configuration are documented. Calling/proactive access remains on by default; no subscriptions, app credits or dollar cap were reintroduced. No live spending settings were changed. |
 
 ## Additional findings from the second pass
@@ -62,7 +62,7 @@ The first pushed Linux run passed the database job but exposed a test-launcher p
 
 ## Remaining release/operational work
 
-1. Retained artwork still has unresolved redistribution rights, by the maintainer's explicit choice.
+1. Remove the superseded Apple icon files and L’Artusi photograph from historical Git commits before public release. Current-source replacements and notices are described in THIRD_PARTY_ASSETS.md.
 2. Enable/verify GitHub private vulnerability reporting when the repository's feature availability permits it; the attempt here returned 404.
 3. Apply migrations 0039 and 0040 and distribute the matching wrapper version 3 when deploying these changes. Configure the cleanup worker and monitor pending deletion jobs. Clean up old browser namespaces through the provider before upgrading an existing installation.
 4. Qualify the supported live providers using your own isolated deployment and credentials, and set provider-side spending/access limits.
@@ -112,4 +112,4 @@ This assessment covers the release directory, not the original private Git histo
 
 See [the asset review](THIRD_PARTY_ASSETS.md). Three missing SIL OFL notices were added for the bundled fonts, matching their embedded metadata. Existing card-network, iPhone-frame and cursor-motion notices were retained.
 
-**Still unresolved:** redistribution permission for the copied Apple app icons and the L'Artusi restaurant photo. Attribution/source links alone do not establish permission. Confirm rights or replace these assets before distributing the repository. Confirm ownership of the project-supplied artwork as well.
+**Current source updated:** the copied Apple app icons and L’Artusi photo have been replaced with licensed capability glyphs and a credited Unsplash photograph. The old assets remain in earlier Git commits and must be removed from history before public release. Confirm ownership of the project-supplied artwork as well.

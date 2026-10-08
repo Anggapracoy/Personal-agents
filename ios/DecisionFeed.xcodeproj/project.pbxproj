@@ -6,6 +6,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        A9EE00000000000000000001 /* SourceIcons-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = B9EE00000000000000000001 /* SourceIcons-LICENSE.txt */; };
+        A9EE00000000000000000002 /* OnboardingRestaurant-SOURCE.md in Resources */ = {isa = PBXBuildFile; fileRef = B9EE00000000000000000002 /* OnboardingRestaurant-SOURCE.md */; };
 		AC2200000000000000000001 /* NativeMessageMenus.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2200000000000000000001 /* NativeMessageMenus.swift */; };
 		A10000000000000000000001 /* DecisionFeedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* DecisionFeedApp.swift */; };
 		A10000000000000000000002 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppConfiguration.swift */; };
@@ -64,6 +66,8 @@ A90000000000000000000001 = {isa = PBXBuildFile; fileRef = B900000000000000000000
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+        B9EE00000000000000000001 /* SourceIcons-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SourceIcons-LICENSE.txt"; sourceTree = "<group>"; };
+        B9EE00000000000000000002 /* OnboardingRestaurant-SOURCE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "OnboardingRestaurant-SOURCE.md"; sourceTree = "<group>"; };
 		BC2200000000000000000001 /* NativeMessageMenus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeMessageMenus.swift; sourceTree = "<group>"; };
 		B10000000000000000000001 /* DecisionFeedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionFeedApp.swift; sourceTree = "<group>"; };
 		B10000000000000000000002 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
@@ -141,7 +145,7 @@ B90000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourceco
 		D10000000000000000000004 /* App */ = {isa = PBXGroup; children = (B10000000000000000000001, B10000000000000000000002, B20000000000000000000001, B90000000000000000000001, B20000000000000000000002, B40000000000000000000001, B60000000000000000000001, B70000000000000000000001, B70000000000000000000002, B70000000000000000000003, B70000000000000000000004, B70000000000000000000005, B7000000000000000000000A); path = App; sourceTree = "<group>"; };
 		D10000000000000000000005 /* Web */ = {isa = PBXGroup; children = (B10000000000000000000003, BC2200000000000000000001, B10000000000000000000004); path = Web; sourceTree = "<group>"; };
 		D10000000000000000000006 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000005, B30000000000000000000001, B30000000000000000000002); path = Views; sourceTree = "<group>"; };
-		D10000000000000000000007 /* Resources */ = {isa = PBXGroup; children = (B10000000000000000000007, B1000000000000000000000D, B1000000000000000000000E); path = Resources; sourceTree = "<group>"; };
+		D10000000000000000000007 /* Resources */ = {isa = PBXGroup; children = (B10000000000000000000007, B1000000000000000000000D, B1000000000000000000000E, B9EE00000000000000000001, B9EE00000000000000000002); path = Resources; sourceTree = "<group>"; };
 		D10000000000000000000008 /* DecisionFeedTests */ = {isa = PBXGroup; children = (B10000000000000000000006, B70000000000000000000006); path = DecisionFeedTests; sourceTree = "<group>"; };
 		D10000000000000000000009 /* Config */ = {isa = PBXGroup; children = (B10000000000000000000008, B10000000000000000000009, B1000000000000000000000A); path = Config; sourceTree = "<group>"; };
 		D1000000000000000000000A /* Products */ = {isa = PBXGroup; children = (B1000000000000000000000B, B1000000000000000000000C, B50000000000000000000004, B80000000000000000000004); name = Products; sourceTree = "<group>"; };
@@ -227,7 +231,7 @@ B90000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourceco
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		F10000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000007, A10000000000000000000008); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000007, A10000000000000000000008, A9EE00000000000000000001, A9EE00000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
 		F10000000000000000000014 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 
 		F50000000000000000000012 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };

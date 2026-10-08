@@ -1664,7 +1664,6 @@ html[data-appearance="dark"] :is(.wd-blocks, .wd-block-message) { --blk: #6fb1f0
 .wd-source-icon-slot { display: inline-grid; place-items: center; width: 30px; height: 30px; flex: 0 0 30px; }
 .wd-source-summary { gap: 10px; }
 .wd-source-summary .wd-source-icon-slot { width: 44px; height: 44px; flex-basis: 44px; }
-.wd-source-summary .wd-source-icon.is-apple-artwork { width: 43.2px; height: 43.2px; }
 .wd-source-summary .wd-source-icon.is-google-mark { width: 36px; height: 36px; }
 .wd-source-description, .wd-icloud-source > .wd-error { padding-left: 54px; }
 
