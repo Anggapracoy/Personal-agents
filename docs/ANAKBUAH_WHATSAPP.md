@@ -15,7 +15,9 @@ This branch adds the first channel boundary for Anakbuah on top of Dash. It is i
 
 `app/api/webhooks/whatsapp/route.ts` now authenticates Meta requests, claims each provider message exactly once, resolves the sender through `whatsapp_identities`, creates a Dash run, and dispatches it through the existing durable worker. The route does not call a model or perform a booking inline. It returns `202` after admission; outbound WhatsApp delivery will go through a provider client with explicit approval receipts and retry state.
 
-Before enabling the webhook, provision an authenticated owner mapping in the database. The sender number alone is never enough to choose an owner:
+The app endpoint `POST /api/connections/whatsapp/link-code` creates a one-time code valid for ten minutes. Send `LINK <code>` to the Anakbuah WhatsApp number. The sender number is then bound to the authenticated app account; the sender number alone is never enough to choose an owner.
+
+Manual provisioning remains available for operators during early staging:
 
 ```sql
 insert into whatsapp_identities(phone_number_id, wa_id, owner_email)

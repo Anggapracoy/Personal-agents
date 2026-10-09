@@ -7,6 +7,7 @@ import { classifyAnakbuahMessage } from "../../../../lib/channels/anakbuah-behav
 import { getRunStore } from "../../../../lib/harness/store";
 import { dispatchInteractiveRun } from "../../../../lib/harness/dispatch";
 import { resumeRun } from "../../../../lib/harness/resume";
+import { redeemWhatsAppLinkCode } from "../../../../lib/channels/whatsapp-linking";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -44,8 +45,13 @@ async function POSTHandler(request: NextRequest) {
   let accepted = 0;
   let duplicates = 0;
   for (const message of messages) {
-    const claim = await claimWhatsAppMessage(sql, message);
+    let claim = await claimWhatsAppMessage(sql, message);
     if (claim.kind === "duplicate") { duplicates++; continue; }
+    if (claim.kind === "unlinked") {
+      const ownerEmail = await redeemWhatsAppLinkCode(sql, message);
+      if (!ownerEmail) continue;
+      claim = { kind: "accepted", ownerEmail, runId: null };
+    }
     if (claim.kind !== "accepted") continue;
     const intent = classifyAnakbuahMessage(message);
     if (intent.kind === "approve" || intent.kind === "reject") {

@@ -5,7 +5,7 @@ type Sql = ReturnType<typeof postgres>;
 
 export type WhatsAppIngressClaim =
   | { kind: "duplicate" }
-  | { kind: "unlinked" }
+  | { kind: "unlinked"; providerMessageId: string }
   | { kind: "accepted"; ownerEmail: string; runId: string | null };
 
 /** Atomically authorize an identity and claim a provider delivery. */
@@ -18,7 +18,7 @@ export async function claimWhatsAppMessage(sql: Sql, message: WhatsAppInboundMes
     const ownerEmail = typeof identity?.owner_email === "string" ? identity.owner_email.trim().toLowerCase() : "";
     if (!ownerEmail) {
       await tx`insert into whatsapp_inbound_events(provider_message_id,phone_number_id,wa_id,body,received_at) values (${message.providerMessageId},${message.phoneNumberId},${message.from},${message.text},${message.receivedAt})`;
-      return { kind: "unlinked" };
+      return { kind: "unlinked", providerMessageId: message.providerMessageId };
     }
     await tx`insert into whatsapp_inbound_events(provider_message_id,phone_number_id,wa_id,owner_email,body,received_at) values (${message.providerMessageId},${message.phoneNumberId},${message.from},${ownerEmail},${message.text},${message.receivedAt})`;
     return { kind: "accepted", ownerEmail, runId: typeof identity?.run_id === "string" ? identity.run_id : null };
