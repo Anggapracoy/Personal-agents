@@ -187,11 +187,15 @@ function Sources({ googleConnected, googleConnections, previewMode, deviceCalend
   const [accounts, setAccounts] = useState<GoogleConnection[]>(googleConnections ?? []);
   const [iCloudAccounts, setICloudAccounts] = useState<Array<{ email: string }>>([]);
   const showGoogle = !query || ["google gmail calendar", ...(query.length >= 3 ? accounts.map(account => account.email.toLowerCase()) : [])].some(value => value.includes(query));
+  const showWhatsApp = !query || "whatsapp chat messages".includes(query);
   const localMatches = "icloud mail apple email".includes(query) || iCloudAccounts.some(account => account.email.toLowerCase().includes(query)) || showGoogle || "apple calendar events on this iphone".includes(query) || appleSources.some(source => `apple ${source.name} ${query.length >= 3 ? source.detail : ""}`.toLowerCase().includes(query));
   const [loading, setLoading] = useState(!previewMode);
   const [removing, setRemoving] = useState<GoogleConnection | null>(null);
   const [error, setError] = useState("");
   const [version, setVersion] = useState(0);
+  const [whatsappCode, setWhatsAppCode] = useState<{ code: string; expiresAt: string; instruction: string } | null>(null);
+  const [whatsappLoading, setWhatsAppLoading] = useState(false);
+  const [whatsappError, setWhatsAppError] = useState("");
   const load = () => setVersion((value) => value + 1);
   useEffect(() => {
     if (previewMode) return;
@@ -230,6 +234,26 @@ function Sources({ googleConnected, googleConnections, previewMode, deviceCalend
       <input type="search" className="wd-connector-search" aria-label="Search apps" placeholder="Search apps" autoCorrect="off" autoCapitalize="none" spellCheck={false} value={search} onChange={event => setSearch(event.target.value)} />
 
       {scanning && <div className="wd-source-scan" role="status"><span className="wd-spinner" aria-hidden="true" /><span><strong>Looking for things to help with</strong><small>{scanning}</small></span><button type="button" className="wd-btn is-text is-compact" onClick={onStopScan}>Stop</button></div>}
+      {showWhatsApp && <section className="wd-you-group wd-whatsapp-connector">
+        <h2>WhatsApp</h2>
+        <SettingsDisclosure className="wd-source-detail">
+          <summary className="wd-source-summary"><SettingsGlyph name="sources" /><strong>WhatsApp<small>Chat with Anakbuah from your phone</small></strong>{whatsappCode ? <span className="wd-source-state is-connected" aria-label="Ready to link">✓</span> : <span className="wd-source-state">Connect</span>}</summary>
+          <div className="wd-source-description">
+            <p className="wd-you-note">Generate a one-time code, then send <strong>LINK code</strong> to the Anakbuah WhatsApp number.</p>
+            {whatsappCode ? <div className="wd-you-note" role="status"><strong>{whatsappCode.code}</strong><small>Expires {new Date(whatsappCode.expiresAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</small></div> : <button type="button" className="wd-btn is-primary wd-source-connect" disabled={previewMode || whatsappLoading} onClick={async () => {
+              setWhatsAppLoading(true); setWhatsAppError("");
+              try {
+                const response = await fetch("/api/connections/whatsapp/link-code", { method: "POST" });
+                const data = await response.json().catch(() => null) as { code?: string; expiresAt?: string; instruction?: string; error?: string } | null;
+                if (!response.ok || !data?.code || !data.expiresAt || !data.instruction) throw new Error(data?.error || "WhatsApp link code could not be created.");
+                setWhatsAppCode({ code: data.code, expiresAt: data.expiresAt, instruction: data.instruction });
+              } catch (caught) { setWhatsAppError(caught instanceof Error ? caught.message : "WhatsApp link code could not be created."); }
+              finally { setWhatsAppLoading(false); }
+            }}>{whatsappLoading ? "Creating code…" : "Connect WhatsApp"}</button>}
+            {whatsappError && <p className="wd-you-error" role="alert">{whatsappError}</p>}
+          </div>
+        </SettingsDisclosure>
+      </section>}
       {showGoogle && <section className="wd-you-group wd-google-connectors">
         <h2>Google</h2>
         {loading && <p className="wd-you-note">Loading accounts…</p>}
