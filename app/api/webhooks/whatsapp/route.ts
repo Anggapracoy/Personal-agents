@@ -1,7 +1,7 @@
 import postgres from "postgres";
 import { NextRequest, NextResponse } from "next/server";
 import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
-import { attachWhatsAppRun, claimWhatsAppMessage, findWhatsAppApproval } from "../../../../lib/channels/whatsapp-ingress";
+import { attachWhatsAppRun, claimWhatsAppMessage, findWhatsAppApproval, setWhatsAppConversationRun } from "../../../../lib/channels/whatsapp-ingress";
 import { parseWhatsAppWebhook, verifyWhatsAppChallenge, verifyWhatsAppSignature } from "../../../../lib/channels/whatsapp";
 import { classifyAnakbuahMessage } from "../../../../lib/channels/anakbuah-behavior";
 import { getRunStore } from "../../../../lib/harness/store";
@@ -65,6 +65,18 @@ async function POSTHandler(request: NextRequest) {
       continue;
     }
     const requestText = message.text.trim();
+    if (claim.runId) {
+      const acceptedReply = await store.acceptReply(claim.runId, { role: "user", content: requestText }, { channel: "whatsapp", whatsappMessageId: message.providerMessageId });
+      if (acceptedReply !== "missing") {
+        await attachWhatsAppRun(sql, message.providerMessageId, claim.runId);
+        accepted++;
+        if (acceptedReply === "started") {
+          try { await dispatchInteractiveRun(claim.runId, `whatsapp:${message.providerMessageId}`); }
+          catch { console.warn("[whatsapp-ingress] conversation dispatch deferred", { runId: claim.runId }); }
+        }
+        continue;
+      }
+    }
     const run = await store.createRun({
       userId: claim.ownerEmail,
       decisionId: null,
@@ -81,6 +93,7 @@ async function POSTHandler(request: NextRequest) {
       { role: "user", content: requestText },
     ]);
     await attachWhatsAppRun(sql, message.providerMessageId, run.id);
+    await setWhatsAppConversationRun(sql, message.phoneNumberId, message.from, run.id);
     accepted++;
     try { await dispatchInteractiveRun(run.id, `whatsapp:${message.providerMessageId}`); }
     catch { console.warn("[whatsapp-ingress] durable dispatch deferred", { runId: run.id }); }

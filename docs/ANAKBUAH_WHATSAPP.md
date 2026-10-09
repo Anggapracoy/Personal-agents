@@ -30,4 +30,4 @@ Required configuration will be introduced with the route, not hard-coded in this
 - `WHATSAPP_APP_SECRET` for signature verification.
 - A server-side access token and phone-number ID for outbound delivery, stored in the deployment secret manager.
 
-`lib/channels/whatsapp-client.ts` provides the authenticated Graph API sender and refuses to send without an explicit payload. The Inngest worker now uses `whatsapp_outbound_deliveries` to send completion and approval receipts with a stable idempotency key. Long-lived conversation threading and production credential provisioning remain pending.
+`lib/channels/whatsapp-client.ts` provides the authenticated Graph API sender and refuses to send without an explicit payload. The Inngest worker now uses `whatsapp_outbound_deliveries` to send completion and approval receipts with a stable idempotency key. `whatsapp_identities.run_id` keeps normal messages in one durable Dash conversation; a missing or deleted run starts a fresh thread.
