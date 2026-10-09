@@ -13,30 +13,30 @@ struct OnboardingView: View {
         var id: Int { rawValue }
         var title: String {
             switch self {
-            case .promise: "A little help,\nbefore you ask."
-            case .signals: "Let Dash notice\nwhat needs doing."
-            case .notifications: "You don’t have to\nkeep checking."
+            case .promise: "Bantuan kecil,\nsebelum kamu meminta."
+            case .signals: "Biarkan Anakbuah\nmenangkap yang penting."
+            case .notifications: "Kamu tidak perlu\nterus mengecek."
             }
         }
         var copy: String? {
             switch self {
-            case .promise: "You can also always ask Dash for help."
-            case .signals: "Connect your apps so Dash can help."
-            case .notifications: "Dash lets you know when you’re needed."
+            case .promise: "Kamu selalu bisa meminta bantuan Anakbuah."
+            case .signals: "Hubungkan aplikasi agar Anakbuah bisa membantu."
+            case .notifications: "Anakbuah memberi tahu saat kamu dibutuhkan."
             }
         }
         var primaryTitle: String {
             switch self {
-            case .promise: "Get started"
-            case .signals: "Continue"
-            case .notifications: "Keep me posted"
+            case .promise: "Mulai"
+            case .signals: "Lanjutkan"
+            case .notifications: "Beri tahu saya"
             }
         }
         var skipTitle: String {
             switch self {
-            case .promise: "Skip"
-            case .signals: "Do this later"
-            case .notifications: "Not now"
+            case .promise: "Lewati"
+            case .signals: "Nanti saja"
+            case .notifications: "Jangan sekarang"
             }
         }
     }

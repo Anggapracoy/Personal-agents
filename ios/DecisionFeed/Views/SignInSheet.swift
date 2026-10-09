@@ -58,7 +58,7 @@ struct SignInSheet: View {
                     .foregroundStyle(BrandColor.ink)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                Text("Sign in here. Dash continues after.")
+                Text("Login aman di sini. Anakbuah melanjutkan setelahnya.")
                     .font(.footnote)
                     .foregroundStyle(BrandColor.ink2)
                     .lineLimit(1)

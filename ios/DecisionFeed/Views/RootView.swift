@@ -444,7 +444,7 @@ private struct LaunchOverlay: View {
         }
         .allowsHitTesting(false)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Dash is loading")
+        .accessibilityLabel("Anakbuah sedang dimuat")
     }
 }
 
@@ -464,9 +464,9 @@ private struct AuthenticationView: View {
             if typeSize.isAccessibilitySize {
                 ScrollView {
                     VStack(spacing: 24) {
-                        Text("Dash").font(.title2.weight(.semibold))
+                        Text("Anakbuah").font(.title2.weight(.semibold))
                         AuthenticationMascot().frame(width: 100, height: 100)
-                        Text("Meet your assistant. Less on your plate.")
+                        Text("Kenalkan Anakbuah. Biar urusanmu lebih ringan.")
                             .font(.title.weight(.semibold)).accessibilityAddTraits(.isHeader)
                         Text("Sign in or create an account.").font(.body).foregroundStyle(BrandColor.ink2)
                         googleButton
@@ -479,7 +479,7 @@ private struct AuthenticationView: View {
                 }
             } else {
             VStack(spacing: 0) {
-                Text("Dash")
+                Text("Anakbuah")
                     .font(.system(size: 24, weight: .semibold)).tracking(-0.8)
                     .padding(.top, 12)
                     .frame(height: 56)
@@ -503,7 +503,7 @@ private struct AuthenticationView: View {
                             VStack(spacing: 18) {
                                 AuthenticationMascot().scaledToFit()
                                     .frame(width: compact ? 110 : 128, height: compact ? 110 : 128)
-                                Text("Meet your assistant.\nLess on your plate.")
+                                Text("Kenalkan Anakbuah.\nBiar urusanmu lebih ringan.")
                                     .font(.title.weight(.semibold)).tracking(-0.7)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .accessibilityAddTraits(.isHeader)

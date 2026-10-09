@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dash</string>
+	<string>Anakbuah</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -41,7 +41,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Dash reads your calendars to surface schedule conflicts and decisions that need your attention.</string>
+	<string>Anakbuah membaca kalender untuk menemukan bentrok jadwal dan hal penting yang perlu kamu perhatikan.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>With Always, Dash can help at the right moment, like telling you when to leave or reminding you about a return when you’re near the store. Your location history stays on this iPhone; Dash only receives moments like “arrived home.”</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
