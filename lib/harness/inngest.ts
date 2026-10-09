@@ -24,6 +24,7 @@ import { runAgent } from "./run";
 import { preloadAgentModel } from "./preload-model";
 import { getRunStore } from "./store";
 import { deliverPendingPushNotifications, queueRunAttentionPushNotification, queueRunCompletionPushNotification } from "../push-notifications";
+import { deliverWhatsAppNotification } from "../channels/whatsapp-delivery";
 
 export const agentWorker = inngest.createFunction(
   { id: AGENT_FUNCTION_ID, retries: 2, checkpointing: { maxRuntime: "1s", bufferedSteps: 1 },
@@ -73,6 +74,7 @@ export const agentWorker = inngest.createFunction(
         title: snapshot.title,
         body,
       });
+      await deliverWhatsAppNotification({ runId, deliveryKey: `attention:${pendingAction.id}`, body, approvalId: pendingAction.id });
       if (queued) await deliverPendingPushNotifications({ ownerEmail: snapshot.userId, includeRecent: true });
       return { notified: queued };
     });
@@ -91,6 +93,11 @@ export const agentWorker = inngest.createFunction(
         ownerEmail: snapshot.userId,
         runId,
         title: snapshot.title,
+        body: snapshot.result?.summary?.trim() || snapshot.response?.trim() || "",
+      });
+      await deliverWhatsAppNotification({
+        runId,
+        deliveryKey: `completion:${runId}:${snapshot.completedAt ?? snapshot.updatedAt}`,
         body: snapshot.result?.summary?.trim() || snapshot.response?.trim() || "",
       });
       if (queued) await deliverPendingPushNotifications({ ownerEmail: snapshot.userId, includeRecent: true });

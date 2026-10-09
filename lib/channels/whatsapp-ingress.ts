@@ -28,3 +28,8 @@ export async function claimWhatsAppMessage(sql: Sql, message: WhatsAppInboundMes
 export async function attachWhatsAppRun(sql: Sql, providerMessageId: string, runId: string) {
   await sql`update whatsapp_inbound_events set run_id=${runId} where provider_message_id=${providerMessageId} and run_id is null`;
 }
+
+export async function findWhatsAppApproval(sql: Sql, actionId: string, ownerEmail: string): Promise<{ runId: string } | null> {
+  const [row] = await sql`select a.run_id from agent_actions a join agent_runs r on r.id=a.run_id where a.id=${actionId} and a.status='proposed' and lower(r.user_id)=lower(${ownerEmail}) limit 1`;
+  return typeof row?.run_id === "string" ? { runId: row.run_id } : null;
+}

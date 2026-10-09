@@ -1,10 +1,12 @@
 import postgres from "postgres";
 import { NextRequest, NextResponse } from "next/server";
 import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
-import { attachWhatsAppRun, claimWhatsAppMessage } from "../../../../lib/channels/whatsapp-ingress";
-import { buildWhatsAppTextMessage, parseWhatsAppWebhook, verifyWhatsAppChallenge, verifyWhatsAppSignature } from "../../../../lib/channels/whatsapp";
+import { attachWhatsAppRun, claimWhatsAppMessage, findWhatsAppApproval } from "../../../../lib/channels/whatsapp-ingress";
+import { parseWhatsAppWebhook, verifyWhatsAppChallenge, verifyWhatsAppSignature } from "../../../../lib/channels/whatsapp";
+import { classifyAnakbuahMessage } from "../../../../lib/channels/anakbuah-behavior";
 import { getRunStore } from "../../../../lib/harness/store";
 import { dispatchInteractiveRun } from "../../../../lib/harness/dispatch";
+import { resumeRun } from "../../../../lib/harness/resume";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -45,6 +47,23 @@ async function POSTHandler(request: NextRequest) {
     const claim = await claimWhatsAppMessage(sql, message);
     if (claim.kind === "duplicate") { duplicates++; continue; }
     if (claim.kind !== "accepted") continue;
+    const intent = classifyAnakbuahMessage(message);
+    if (intent.kind === "approve" || intent.kind === "reject") {
+      const target = await findWhatsAppApproval(sql, intent.approvalId, claim.ownerEmail);
+      if (!target) continue;
+      if (intent.kind === "approve") {
+        const approved = await store.approveAction(intent.approvalId, target.runId, claim.ownerEmail);
+        if (!approved) continue;
+        await resumeRun(store, target.runId, `The user approved this action from WhatsApp. Call the same tool again with identical input to execute it.`);
+      } else {
+        const skipped = await store.skipAction(intent.approvalId, target.runId, claim.ownerEmail, { userDeniedApproval: true, instruction: "The user denied this action from WhatsApp. Do not perform it; continue without the external change." });
+        if (!skipped) continue;
+        await resumeRun(store, target.runId, `The user denied this action from WhatsApp. Do not perform or propose it again; continue without the external change.`);
+      }
+      await attachWhatsAppRun(sql, message.providerMessageId, target.runId);
+      accepted++;
+      continue;
+    }
     const requestText = message.text.trim();
     const run = await store.createRun({
       userId: claim.ownerEmail,
