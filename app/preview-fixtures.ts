@@ -5,44 +5,44 @@ import type { Decision, HistoryEntry, RunningTask } from "../lib/types";
 import type { VaultItemSummary } from "./native-bridge";
 import type { LifeProfileResponse } from "./workspace-model";
 
-/** Sample data rendered by `?uiPreview=1` so every screen can be seen without a signed-in account. */
+/** Data contoh Anakbuah untuk `?uiPreview=1` (Bahasa Indonesia, konteks Indonesia). */
 export const uiPreviewDecisions: Decision[] = [
-  { id: "preview-proactive-dinner", category: "food", urgency: "medium", title: "I can sort out dinner tonight", whyThisAppeared: ["A few good spots nearby, and I’ll check for a table."], subtitle: "You’re free after 7. I can find a few good spots nearby and check for a table.", sourceType: "calendar", sourceLabel: "Based on your calendar", createdAt: "2026-08-24T15:00:00.000Z", originalContext: "Sample suggestion: find dinner options for tonight after 7.", options: [
-    { id: "find-dinner", label: "Find a spot", actionType: "research", isPrimary: true }, { id: "stay-in", label: "Stay in instead", actionType: "no_action" },
-  ], dismissLabel: "Not now" },
-  { id: "preview-proactive-return", category: "shopping", urgency: "high", title: "Your return window closes Friday", subtitle: "Those headphones arrived two weeks ago. I can get the return started before it’s too late.", sourceType: "email", sourceLabel: "Gmail", createdAt: "2026-08-24T14:00:00.000Z", originalContext: "Sample suggestion: return the headphones before Friday.", options: [
-    { id: "start-return", label: "Start return", actionType: "approval", isPrimary: true }, { id: "keep-headphones", label: "Keep them", actionType: "no_action" },
-  ], dismissLabel: "Not now" },
-  { id: "preview-proactive-weekend", category: "social", urgency: "low", title: "Saturday’s still wide open", subtitle: "There’s a food market and a new exhibition nearby. Want me to put together a relaxed afternoon?", sourceType: "calendar", sourceLabel: "A little ahead of time", createdAt: "2026-08-24T13:00:00.000Z", originalContext: "Sample suggestion: plan a relaxed Saturday afternoon.", options: [
-    { id: "weekend-ideas", label: "Show me ideas", actionType: "research", isPrimary: true }, { id: "keep-free", label: "Keep it free", actionType: "no_action" },
-  ], dismissLabel: "Not now" },
-  { id: "preview-waiver", category: "family", urgency: "high", title: "Leo’s waiver is due Friday", subtitle: "Still unsigned · party is in 5 days", sourceType: "manual", sourceLabel: "Shared from Safari", createdAt: "2026-08-24T18:00:00.000Z", whyThisAppeared: ["You shared the party waiver and it is still unsigned."], originalContext: "Leo’s party waiver is due Friday.", options: [
-    { id: "preview-sign", label: "Sign waiver", actionType: "approval", isPrimary: true }, { id: "preview-host", label: "Ask host", actionType: "approval" }, { id: "preview-skip", label: "Skip party", actionType: "approval" },
-  ], dismissLabel: "Do nothing" },
-  { id: "preview-flight", category: "travel", urgency: "medium", title: "Rain may disrupt your helicopter flight", subtitle: "70% chance of heavy rain during your booking", sourceType: "calendar", sourceLabel: "Weather + Calendar", createdAt: "2026-08-24T17:00:00.000Z", actionableUntil: "2026-08-29T15:00:00-04:00", whyThisAppeared: ["Your booking overlaps the heaviest rain in Saturday’s forecast."], originalContext: "Saturday helicopter flight and local forecast.", executionContext: { sourceCalendar: { sourceKind: "google", eventIds: ["preview-helicopter"], events: [{ id: "preview-helicopter", summary: "Helicopter flight", description: "", location: "Toronto Heli Tours", start: "2026-08-29T15:00:00-04:00", end: "2026-08-29T16:00:00-04:00", attendees: [], htmlLink: "https://calendar.google.com/" }] } }, options: [
-    { id: "preview-reschedule", label: "Reschedule", actionType: "approval", isPrimary: true }, { id: "preview-keep", label: "Keep booking", actionType: "no_action" }, { id: "preview-alternatives", label: "Alternatives", actionType: "research" },
-  ], dismissLabel: "Do nothing" },
-  { id: "preview-renewal", category: "money", urgency: "medium", title: "IconScout renews for $149", subtitle: "You have not used it in 6 weeks", sourceType: "email", sourceLabel: "Gmail", createdAt: "2026-08-24T16:00:00.000Z", whyThisAppeared: ["A renewal is due in 3 days and recent activity suggests you may no longer need it."], originalContext: "IconScout renewal notice.", options: [
-    { id: "preview-cancel", label: "Cancel renewal", actionType: "approval", isPrimary: true }, { id: "preview-keep-sub", label: "Keep it", actionType: "no_action" }, { id: "preview-remind", label: "Remind me", actionType: "instant" },
-  ], dismissLabel: "Do nothing" },
+  { id: "preview-proactive-dinner", category: "food", urgency: "medium", title: "Aku carikan makan malam", whyThisAppeared: ["Kamu senggang setelah jam 19.00; aku bisa cek tempat makan di sekitar rumah."], subtitle: "Kamu senggang setelah jam 19.00. Aku bisa carikan tempat makan dan cek ketersediaannya.", sourceType: "calendar", sourceLabel: "Dari kalender kamu", createdAt: "2026-08-24T15:00:00.000Z", originalContext: "Contoh saran: cari tempat makan malam untuk dua orang setelah jam 19.00.", options: [
+    { id: "find-dinner", label: "Carikan tempat", actionType: "research", isPrimary: true }, { id: "stay-in", label: "Makan di rumah", actionType: "no_action" },
+  ], dismissLabel: "Nanti saja" },
+  { id: "preview-proactive-return", category: "shopping", urgency: "high", title: "Batas retur barang tinggal 2 hari", subtitle: "Headset pesananmu tiba dua minggu lalu. Aku bisa siapkan proses retur sebelum batas waktunya.", sourceType: "email", sourceLabel: "Email", createdAt: "2026-08-24T14:00:00.000Z", originalContext: "Contoh saran: ajukan retur headset sebelum Jumat.", options: [
+    { id: "start-return", label: "Siapkan retur", actionType: "approval", isPrimary: true }, { id: "keep-headphones", label: "Tetap simpan", actionType: "no_action" },
+  ], dismissLabel: "Nanti saja" },
+  { id: "preview-proactive-weekend", category: "social", urgency: "low", title: "Sabtu kamu masih kosong", subtitle: "Ada pasar akhir pekan dan pameran baru. Mau aku susun rencana santai di Jakarta?", sourceType: "calendar", sourceLabel: "Dari kalender kamu", createdAt: "2026-08-24T13:00:00.000Z", originalContext: "Contoh saran: susun agenda santai Sabtu di Jakarta.", options: [
+    { id: "weekend-ideas", label: "Tunjukkan ide", actionType: "research", isPrimary: true }, { id: "keep-free", label: "Biarkan kosong", actionType: "no_action" },
+  ], dismissLabel: "Nanti saja" },
+  { id: "preview-waiver", category: "family", urgency: "high", title: "Form pendaftaran sekolah belum dikirim", subtitle: "Belum ditandatangani · batasnya Jumat", sourceType: "manual", sourceLabel: "Dibagikan dari browser", createdAt: "2026-08-24T18:00:00.000Z", whyThisAppeared: ["Kamu menyimpan formulir pendaftaran sekolah dan belum mengirimkannya."], originalContext: "Formulir pendaftaran sekolah harus dikirim Jumat.", options: [
+    { id: "preview-sign", label: "Buka formulir", actionType: "approval", isPrimary: true }, { id: "preview-host", label: "Tanya sekolah", actionType: "approval" }, { id: "preview-skip", label: "Lewati dulu", actionType: "approval" },
+  ], dismissLabel: "Jangan lakukan" },
+  { id: "preview-flight", category: "travel", urgency: "medium", title: "Hujan bisa mengganggu penerbanganmu", subtitle: "Prakiraan hujan deras 70% saat jadwal keberangkatan", sourceType: "calendar", sourceLabel: "Cuaca + Kalender", createdAt: "2026-08-24T17:00:00.000Z", actionableUntil: "2026-08-29T15:00:00+07:00", whyThisAppeared: ["Jadwal penerbanganmu bertepatan dengan prakiraan hujan deras di Jakarta."], originalContext: "Penerbangan Jakarta–Denpasar hari Sabtu dan prakiraan cuaca.", executionContext: { sourceCalendar: { sourceKind: "google", eventIds: ["preview-flight"], events: [{ id: "preview-flight", summary: "Penerbangan Jakarta–Denpasar", description: "", location: "Bandara Soekarno-Hatta", start: "2026-08-29T15:00:00+07:00", end: "2026-08-29T18:00:00+07:00", attendees: [], htmlLink: "https://calendar.google.com/" }] } }, options: [
+    { id: "preview-reschedule", label: "Ubah jadwal", actionType: "approval", isPrimary: true }, { id: "preview-keep", label: "Tetap berangkat", actionType: "no_action" }, { id: "preview-alternatives", label: "Cari alternatif", actionType: "research" },
+  ], dismissLabel: "Jangan lakukan" },
+  { id: "preview-renewal", category: "money", urgency: "medium", title: "Langganan aplikasi akan ditagih Rp149.000", subtitle: "Kamu belum memakainya selama 6 minggu", sourceType: "email", sourceLabel: "Email", createdAt: "2026-08-24T16:00:00.000Z", whyThisAppeared: ["Tagihan berulang jatuh tempo 3 hari lagi dan jarang dipakai."], originalContext: "Notifikasi perpanjangan langganan aplikasi.", options: [
+    { id: "preview-cancel", label: "Batalkan tagihan", actionType: "approval", isPrimary: true }, { id: "preview-keep-sub", label: "Tetap langganan", actionType: "no_action" }, { id: "preview-remind", label: "Ingatkan nanti", actionType: "instant" },
+  ], dismissLabel: "Jangan lakukan" },
 ];
 
 export const uiPreviewTasks: RunningTask[] = [
-  { id: "preview-working-task", runId: "preview-working-run", decisionId: "preview-working-decision", category: "food", title: "Dinner plans", subtitle: "Checking availability", status: "running", estimate: "Live", updatedAt: new Date().toISOString(), chosenOption: "Find a table for two tomorrow at 7.", originalContext: "Find a table for two tomorrow at 7." },
+  { id: "preview-working-task", runId: "preview-working-run", decisionId: "preview-working-decision", category: "food", title: "Cari tempat makan", subtitle: "Mengecek ketersediaan", status: "running", estimate: "Sedang berjalan", updatedAt: new Date().toISOString(), chosenOption: "Carikan meja untuk dua orang besok jam 19.00.", originalContext: "Carikan meja untuk dua orang besok jam 19.00." },
   {
-    id: "preview-call-task", runId: "preview-call-run", decisionId: "preview-call-decision", category: "food", title: "Dinner at L’Artusi", subtitle: "On the phone", status: "waiting", estimate: "Calling", updatedAt: new Date().toISOString(), chosenOption: "Call L’Artusi and book dinner for tomorrow.", originalContext: "Book dinner at L’Artusi.",
-    automaticPause: { id: "preview-call-pause", ready: true, reason: "Calling L’Artusi", wakeAt: null, eventKind: "phone_call", phoneCall: { type: "phone_call", callId: "preview-call", actionId: "00000000-0000-4000-8000-000000000001", phoneNumber: "+12125550100", recipientName: "L’Artusi", status: "in_progress" } },
+    id: "preview-call-task", runId: "preview-call-run", decisionId: "preview-call-decision", category: "food", title: "Pesan meja di Warung Sederhana", subtitle: "Sedang menelepon", status: "waiting", estimate: "Menelepon", updatedAt: new Date().toISOString(), chosenOption: "Telepon Warung Sederhana dan pesan makan besok.", originalContext: "Pesan makan malam di Warung Sederhana.",
+    automaticPause: { id: "preview-call-pause", ready: true, reason: "Menelepon Warung Sederhana", wakeAt: null, eventKind: "phone_call", phoneCall: { type: "phone_call", callId: "preview-call", actionId: "00000000-0000-4000-8000-000000000001", phoneNumber: "+62215550100", recipientName: "Warung Sederhana", status: "in_progress" } },
   },
   {
-    id: "preview-time-task", runId: "preview-time-run", decisionId: "preview-time-decision", category: "family", title: "Check the delivery", subtitle: "Waiting to check the delivery", status: "waiting", estimate: "Waiting", updatedAt: new Date().toISOString(), chosenOption: "Check the delivery again in an hour.", originalContext: "Check the delivery later.",
-    automaticPause: { id: "preview-time-pause", ready: true, reason: "Giving the courier time to update tracking", wakeAt: new Date(Date.now() + 3600000).toISOString(), eventKind: null },
+    id: "preview-time-task", runId: "preview-time-run", decisionId: "preview-time-decision", category: "family", title: "Pantau paket", subtitle: "Menunggu pembaruan kurir", status: "waiting", estimate: "Menunggu", updatedAt: new Date().toISOString(), chosenOption: "Cek status paket lagi satu jam lagi.", originalContext: "Cek status paket nanti.",
+    automaticPause: { id: "preview-time-pause", ready: true, reason: "Memberi waktu kurir memperbarui resi", wakeAt: new Date(Date.now() + 3600000).toISOString(), eventKind: null },
   },
   {
-    id: "preview-wait-task", runId: "preview-wait-run", decisionId: "preview-wait-decision", category: "social", title: "Dinner with Alex", subtitle: "Waiting for Alex’s email reply", status: "waiting", estimate: "Waiting", updatedAt: new Date().toISOString(), chosenOption: "Ask Alex which evening works, then help me make a plan.", originalContext: "Plan dinner with Alex.",
-    automaticPause: { id: "preview-pause", ready: true, reason: "Waiting for Alex’s email reply", wakeAt: null, eventKind: "gmail_reply" },
+    id: "preview-wait-task", runId: "preview-wait-run", decisionId: "preview-wait-decision", category: "social", title: "Atur makan dengan Rina", subtitle: "Menunggu balasan WhatsApp Rina", status: "waiting", estimate: "Menunggu", updatedAt: new Date().toISOString(), chosenOption: "Tanya Rina malam yang cocok, lalu bantu buat rencana.", originalContext: "Atur makan dengan Rina.",
+    automaticPause: { id: "preview-pause", ready: true, reason: "Menunggu balasan WhatsApp Rina", wakeAt: null, eventKind: "gmail_reply" },
   },
   {
-    id: "preview-takeover-task", runId: "preview-takeover-run", actionId: "preview-takeover-action", decisionId: "preview-sign-in", category: "travel", title: "Check my flight", subtitle: "Website sign-in needed", status: "needs_approval", chosenOption: "Check my booking", originalContext: "Review the upcoming flight.", approvalKind: "takeover", browserUsed: true, approvalRequest: { pageUrl: "https://www.delta.com/login", reason: "Sign in on Delta’s website, then I can check your booking." },
+    id: "preview-takeover-task", runId: "preview-takeover-run", actionId: "preview-takeover-action", decisionId: "preview-sign-in", category: "travel", title: "Cek penerbangan", subtitle: "Perlu login ke situs maskapai", status: "needs_approval", chosenOption: "Cek pesanan penerbangan", originalContext: "Cek penerbangan yang akan datang.", approvalKind: "takeover", browserUsed: true, approvalRequest: { pageUrl: "https://www.garuda-indonesia.com/", reason: "Login di situs maskapai, lalu aku bisa cek pesananmu." },
   },
   {
     id: "preview-live-task", runId: "preview-live-run", decisionId: "preview-live-decision", category: "food", title: "Booking L’Artusi", activity: { label: "Reading reservation options", icon: "browser" }, subtitle: "Sunday · 2 people · 5:00 PM", status: "running", estimate: "Live", updatedAt: new Date().toISOString(), chosenOption: "Book L’Artusi", originalContext: "Book L’Artusi for two people at 5:00 PM Sunday.", browserUsed: true,
@@ -87,9 +87,9 @@ const montrealBlocks: NonNullable<AgentResult["blocks"]> = [
 
 const polishTime = new Date(Date.now() - 5 * 60_000).toISOString();
 export const uiPreviewHistory: HistoryEntry[] = [
-  { id: 'preview-send-reference', runId: 'preview-send-reference-run', completedAt: polishTime, category: 'social', title: 'Send comparison', subtitle: 'Hey. What’s up?', time: 'now', group: 'TODAY', status: 'done', originalContext: 'Message motion comparison', chosenOption: 'Hi', steps: [], outcome: 'Message motion comparison' },
-  { id: 'preview-vault-summary', runId: 'preview-vault-summary-run', completedAt: polishTime, category: 'shopping', title: 'Order my trainers', subtitle: 'Your login and card are ready.', time: 'now', group: 'TODAY', status: 'done', originalContext: 'Use my saved Nike account and card.', chosenOption: 'Use my saved Nike account and card.', steps: [], outcome: 'Details unlocked' },
-  { id: 'preview-messages-polish', runId: 'preview-messages-polish-run', completedAt: polishTime, category: 'social', title: 'Weekend plans', subtitle: 'See you there', time: 'now', group: 'TODAY', status: 'done', originalContext: 'Plan a relaxed Saturday.', chosenOption: 'Any ideas for Saturday?', steps: [], outcome: 'Saturday plans' },
+  { id: 'preview-send-reference', runId: 'preview-send-reference-run', completedAt: polishTime, category: 'social', title: 'Kirim perbandingan harga', subtitle: 'Ini yang paling cocok', time: 'sekarang', group: 'TODAY', status: 'done', originalContext: 'Kirim perbandingan harga laptop.', chosenOption: 'Hai', steps: [], outcome: 'Perbandingan harga laptop' },
+  { id: 'preview-vault-summary', runId: 'preview-vault-summary-run', completedAt: polishTime, category: 'shopping', title: 'Belanja kebutuhan rumah', subtitle: 'Login dan kartu tersimpan siap dipakai.', time: 'sekarang', group: 'TODAY', status: 'done', originalContext: 'Gunakan akun belanja dan kartu tersimpan.', chosenOption: 'Gunakan akun belanja tersimpan.', steps: [], outcome: 'Detail dibuka dengan aman' },
+  { id: 'preview-messages-polish', runId: 'preview-messages-polish-run', completedAt: polishTime, category: 'social', title: 'Rencana akhir pekan', subtitle: 'Sampai ketemu di sana', time: 'sekarang', group: 'TODAY', status: 'done', originalContext: 'Atur Sabtu santai.', chosenOption: 'Ada ide untuk Sabtu?', steps: [], outcome: 'Rencana Sabtu' },
   { id: "preview-montreal-blocks", runId: "preview-montreal-blocks-run", completedAt: "2026-09-12T12:00:00Z", category: "social", title: "Montreal trip", subtitle: "A relaxed three-day plan.", time: "now", group: "TODAY", status: "done", originalContext: "Plan Montreal trip", chosenOption: "Plan Montreal trip", steps: [], outcome: "Trip plan", result: { outcome: "completed", summary: "A relaxed three-day plan.", details: "A relaxed three-day plan.", verified: false, externalChange: false, facts: [], links: [], moneySaved: null, recommendedNextStep: null, followUpActions: montrealFollowUps, blocks: montrealBlocks } },
   { id: "preview-product-results", runId: "preview-product-results-run", completedAt: "2026-09-11T12:00:00Z", category: "shopping", title: "Find pants", subtitle: "I’d pick the cinched pair.", time: "now", group: "TODAY", status: "done", originalContext: "Find gray sweatpants", chosenOption: "Find gray sweatpants", steps: [], outcome: "Found two pairs" },
   { id: "preview-call-completed", runId: "preview-call-completed-run", completedAt: "2026-09-10T12:00:00Z", category: "food", title: "Dinner booked", subtitle: "You’re booked for 7 tomorrow.", time: "now", group: "TODAY", status: "done", originalContext: "Call and book a table for two.", chosenOption: "Please call and book a table for two at 7.", steps: [], outcome: "Dinner booked" },{
@@ -147,16 +147,16 @@ export const uiPreviewHistory: HistoryEntry[] = [
 
 export const uiPreviewLifeProfile: LifeProfileResponse = {
   requiredVersion: 1,
-  profile: { homeCity: "Toronto", homeCountry: "Canada", travelMode: "drive", travelBufferMinutes: 30, goals: ["money", "travel", "life_admin"], customGoal: "Keep family forms and renewals from slipping through", profileVersion: 1 },
+  profile: { homeCity: "Jakarta", homeCountry: "Indonesia", travelMode: "drive", travelBufferMinutes: 45, goals: ["money", "travel", "life_admin"], customGoal: "Jangan sampai tagihan, jadwal keluarga, dan follow-up terlewat", profileVersion: 1 },
   facts: [
-    { id: "preview-memory-1", kind: "preference", value: { content: "I prefer vegetarian restaurants." }, source: "conversation", confidence: 1, lastConfirmedAt: "2026-09-09T12:00:00Z" },
-    { id: "preview-memory-2", kind: "travel_preference", value: { mode: "drive", bufferMinutes: 30 }, source: "onboarding", confidence: 1, lastConfirmedAt: new Date().toISOString() },
+    { id: "preview-memory-1", kind: "preference", value: { content: "Saya lebih suka tempat makan yang tidak terlalu ramai dan bisa reservasi." }, source: "conversation", confidence: 1, lastConfirmedAt: "2026-09-09T12:00:00Z" },
+    { id: "preview-memory-2", kind: "travel_preference", value: { mode: "drive", bufferMinutes: 45 }, source: "onboarding", confidence: 1, lastConfirmedAt: new Date().toISOString() },
   ],
 };
 
 export const uiPreviewVaultItems: VaultItemSummary[] = [
-  { id: "preview-login", kind: "login", label: "School portal", siteHost: "school.example", usernameHint: "mi•••@example.com", cardBrand: null, cardLast4: null, updatedAt: new Date().toISOString() },
-  { id: "preview-card", kind: "payment_card", label: "Everyday card", siteHost: null, usernameHint: null, cardBrand: "Visa", cardLast4: "4242", updatedAt: new Date().toISOString() },
+  { id: "preview-login", kind: "login", label: "Portal sekolah", siteHost: "sekolah.example.id", usernameHint: "an•••@anakbuah.local", cardBrand: null, cardLast4: null, updatedAt: new Date().toISOString() },
+  { id: "preview-card", kind: "payment_card", label: "Kartu belanja utama", siteHost: null, usernameHint: null, cardBrand: "Visa", cardLast4: "4242", updatedAt: new Date().toISOString() },
 ];
 
 
