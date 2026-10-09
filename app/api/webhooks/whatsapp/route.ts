@@ -2,7 +2,8 @@ import postgres from "postgres";
 import { NextRequest, NextResponse } from "next/server";
 import { withRequestBodyLimit } from "../../../../lib/request-body-limit";
 import { attachWhatsAppRun, claimWhatsAppMessage, findWhatsAppApproval, setWhatsAppConversationRun } from "../../../../lib/channels/whatsapp-ingress";
-import { parseWhatsAppWebhook, verifyWhatsAppChallenge, verifyWhatsAppSignature } from "../../../../lib/channels/whatsapp";
+import { buildWhatsAppTextMessage, parseWhatsAppWebhook, verifyWhatsAppChallenge, verifyWhatsAppSignature } from "../../../../lib/channels/whatsapp";
+import { sendWhatsAppPayload } from "../../../../lib/channels/whatsapp-client";
 import { classifyAnakbuahMessage } from "../../../../lib/channels/anakbuah-behavior";
 import { getRunStore } from "../../../../lib/harness/store";
 import { dispatchInteractiveRun } from "../../../../lib/harness/dispatch";
@@ -46,13 +47,25 @@ async function POSTHandler(request: NextRequest) {
   let duplicates = 0;
   for (const message of messages) {
     let claim = await claimWhatsAppMessage(sql, message);
+    let linkedNow = false;
     if (claim.kind === "duplicate") { duplicates++; continue; }
     if (claim.kind === "unlinked") {
       const ownerEmail = await redeemWhatsAppLinkCode(sql, message);
       if (!ownerEmail) continue;
       claim = { kind: "accepted", ownerEmail, runId: null };
+      linkedNow = true;
     }
     if (claim.kind !== "accepted") continue;
+    if (linkedNow) {
+      const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+      if (accessToken) {
+        try {
+          await sendWhatsAppPayload({ accessToken, phoneNumberId: message.phoneNumberId, graphVersion: process.env.WHATSAPP_GRAPH_VERSION }, buildWhatsAppTextMessage(message.from, "WhatsApp kamu sudah terhubung ke Anakbuah. Kirim pesan apa saja untuk mulai."));
+        } catch { console.warn("[whatsapp-ingress] link confirmation deferred", { providerMessageId: message.providerMessageId }); }
+      }
+      accepted++;
+      continue;
+    }
     const intent = classifyAnakbuahMessage(message);
     if (intent.kind === "approve" || intent.kind === "reject") {
       const target = await findWhatsAppApproval(sql, intent.approvalId, claim.ownerEmail);
