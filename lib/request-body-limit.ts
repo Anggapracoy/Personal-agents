@@ -35,7 +35,11 @@ export function withRequestBodyLimit<T extends Request, A extends unknown[]>(
     const body = new Uint8Array(bytes);
     let offset = 0;
     for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; }
-    const bounded = new NextRequest(request, { body }) as unknown as T;
-    return handler(bounded, ...args);
+    // Rebuild from a plain Web Request. Passing a consumed NextRequest as the
+    // source of a second NextRequest triggers an internal private-state error
+    // in Next.js 16.
+    const rebuilt = new Request(request.url, { method: request.method, headers: request.headers, body });
+    const bounded = request instanceof NextRequest ? new NextRequest(rebuilt) : rebuilt;
+    return handler(bounded as T, ...args);
   };
 }
