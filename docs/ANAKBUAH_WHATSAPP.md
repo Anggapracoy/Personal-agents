@@ -1,6 +1,6 @@
 # Anakbuah WhatsApp foundation
 
-This branch adds the first channel boundary for Anakbuah on top of Dash. It is intentionally a pure, provider-facing contract; it does not send messages, store credentials, or execute user actions.
+This branch adds the WhatsApp channel boundary for Anakbuah on top of Dash. It does not store provider credentials in the database or execute external actions without the existing Dash approval policy.
 
 `lib/channels/whatsapp.ts` covers the pieces that must be deterministic at the edge:
 
@@ -13,7 +13,7 @@ This branch adds the first channel boundary for Anakbuah on top of Dash. It is i
 
 ## Ingress boundary
 
-`app/api/webhooks/whatsapp/route.ts` now authenticates Meta requests, claims each provider message exactly once, resolves the sender through `whatsapp_identities`, creates a Dash run, and dispatches it through the existing durable worker. The route does not call a model or perform a booking inline. It returns `202` after admission; outbound WhatsApp delivery will go through a provider client with explicit approval receipts and retry state.
+`app/api/webhooks/whatsapp/route.ts` now authenticates Meta requests, claims each provider message exactly once, resolves the sender through `whatsapp_identities`, creates or resumes a Dash conversation, and dispatches it through the existing durable worker. The route does not call a model or perform a booking inline. It returns `202` after admission.
 
 The app endpoint `POST /api/connections/whatsapp/link-code` creates a one-time code valid for ten minutes. Send `LINK <code>` to the Anakbuah WhatsApp number. The sender number is then bound to the authenticated app account; the sender number alone is never enough to choose an owner.
 
