@@ -31,7 +31,7 @@ function DemoChoices({question,options,step=0}:{question:string;options:string[]
 }
 
 function Composer() {
-  return <div className={styles.composer}><span><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" /></svg></span><div>Message Dash...<span className={styles.composerMic}><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3M9 21h6" /></svg></span></div></div>;
+  return <div className={styles.composer}><span><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" /></svg></span><div>Message Anakbuah...<span className={styles.composerMic}><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3M9 21h6" /></svg></span></div></div>;
 }
 
 function PhoneStatus() {
@@ -44,7 +44,7 @@ function HeroPhone() {
     { key: "preview:Subscription cancelled", title: "Subscription cancelled", preview: "Your subscription is cancelled. You won’t be charged again.", time: "10:20" },
     { key: "preview:flight", title: "Check my flight", preview: "Website sign-in needed", time: "now" },
   ];
-  return <div className={`${styles.deviceFrame} ${styles.heroPhone}`} role="img" aria-label="Dash iPhone app preview with a waiting update, conversations and the Message Dash composer">
+  return <div className={`${styles.deviceFrame} ${styles.heroPhone}`} role="img" aria-label="Anakbuah app preview with a waiting update, conversations and the Message Anakbuah composer">
     <div className={`${styles.phone} ${styles.homePhone}`} aria-hidden="true">
       <PhoneStatus />
       <div className={styles.homeToolbar}><span className={styles.homeProfile}><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#dce4dc" /><path d="M5 40c0-10 6-15 15-15s15 5 15 15" fill="#52645d" /><path d="M16 23h8v7c-2 3-6 3-8 0Z" fill="#c98e6b" /><ellipse cx="20" cy="17" rx="8" ry="10" fill="#e4b18e" /><path d="M12 19c-3-10 1-15 8-15 8 0 11 7 8 15l-2-7c-4 1-7-1-9-3-1 4-3 5-5 5Z" fill="#40332c" /><path d="M17 21c2 2 4 2 6 0" fill="none" stroke="#a76d51" strokeWidth="1" strokeLinecap="round" /></svg></span><div className={styles.homeTools}><span><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h16v12H4zM3 4h18v4H3zM9 12h6" /></svg></span><span><svg viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg></span></div></div>
@@ -94,12 +94,12 @@ function Phone({ scene }: { scene: number }) {
 }
 
 const scenes = [
-  { id: "notice", phoneScene: 1, eyebrow: "", title: <>Your assistant<br />notices, too.</>, copy: "Connect your inbox and calendar so Dash can spot things like renewal dates and schedule clashes. It brings them to you and offers to help.", label: "Dash notices" },
-  { id: "ask", phoneScene: 0, eyebrow: "", title: <>Tell Dash what<br />you need done.</>, copy: "Message Dash to book a table, cancel a subscription, or send an email. Your assistant handles the steps and lets you know how it went.", label: "You ask" },
-  { id: "approve", phoneScene: 2, eyebrow: "", title: <>Help when needed.<br />Updates when done.</>, copy: "Dash keeps working while you get on with your day. If it needs a detail, sign-in, or approval, it asks you in the chat.", label: "You’re in control" },
+  { id: "notice", phoneScene: 1, eyebrow: "", title: <>Your assistant<br />notices, too.</>, copy: "Connect your inbox and calendar so Anakbuah can spot things like renewal dates and schedule clashes. It brings them to you and offers to help.", label: "Anakbuah notices" },
+  { id: "ask", phoneScene: 0, eyebrow: "", title: <>Tell Anakbuah what<br />you need done.</>, copy: "Message Anakbuah to book a table, cancel a subscription, or send an email. Your assistant handles the steps and lets you know how it went.", label: "You ask" },
+  { id: "approve", phoneScene: 2, eyebrow: "", title: <>Help when needed.<br />Updates when done.</>, copy: "Anakbuah keeps working while you get on with your day. If it needs a detail, sign-in, or approval, it asks you in the chat.", label: "You’re in control" },
 ];
 
-const intro = "Dash is your personal assistant. It notices what needs attention and helps get it done. You can message it a task anytime.";
+const intro = "Anakbuah is your personal assistant. It notices what needs attention and helps get it done. You can message it in the app or WhatsApp anytime.";
 
 export default function Landing() {
   return <main className={`dash-landing ${styles.page}`} data-dash-landing>
@@ -113,14 +113,14 @@ export default function Landing() {
           <div className={styles.orbit} aria-hidden="true" data-orbit>
             {CHARACTERS.map((character, i) => <div className={styles.orbitCharacter} data-orbit-character key={character.name} style={{ "--orbit-x": Math.cos(([-45, 0, 45, 135, 180, 225][i] * Math.PI) / 180), "--orbit-y": Math.sin(([-45, 0, 45, 135, 180, 225][i] * Math.PI) / 180), "--tilt": `${(i % 3 - 1) * 8}deg` } as CSSProperties}><Character index={i} /></div>)}
           </div>
-          <div className={styles.heroCopy} data-hero-copy><h1>Your assistant.<br />Less on your plate.</h1><p>Message Dash what you need done. It handles the steps and spots things you might need help with, too.</p><WaitlistLink /></div>
+          <div className={styles.heroCopy} data-hero-copy><h1>Your assistant.<br />Less on your plate.</h1><p>Message Anakbuah in the app or WhatsApp. It handles the steps and spots things you might need help with, too.</p><WaitlistLink /></div>
           <HeroPhone />
         </div>
         <div className={styles.intro} data-intro><p>{intro.split(" ").map((word, i) => <span key={i} data-intro-word>{word} </span>)}</p></div>
       </div>
     </section>
 
-    <section className={styles.story} id="how-it-works" data-story aria-label="How Dash works">
+    <section className={styles.story} id="how-it-works" data-story aria-label="How Anakbuah works">
       {scenes.map((scene, i) => <span className={styles.sceneAnchor} id={scene.id} key={scene.id} style={{ "--scene": i } as CSSProperties} />)}
       <div className={styles.storySticky}>
         {scenes.map((scene, i) => <article className={styles.scene} data-scene={i} key={scene.id}>
@@ -134,12 +134,12 @@ export default function Landing() {
       <div className={styles.closing} data-closing>
         <div className={styles.closingCopy} data-reveal="0">
           <h2 id="closing-title">A little less to do.<br />A little more life.</h2>
-          <div className={styles.closingAction}><p>Let Dash take it from here.</p><WaitlistLink /></div>
+          <div className={styles.closingAction}><p>Let Anakbuah take it from here.</p><WaitlistLink /></div>
         </div>
       </div>
       <nav className={styles.footerLegal} aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
       <div className={styles.wordmarkStage} data-reveal=".1" aria-hidden="true">
-        <div className={styles.wordmark}>Dash</div>
+        <div className={styles.wordmark}>Anakbuah</div>
         <div className={styles.closingCharacters}>{[0, 2, 3].map((index, i) => <div key={CHARACTERS[index].name} data-reveal={.2 + i * .1} style={{ "--tilt": `${[-8, 6, -5][i]}deg` } as CSSProperties}><Character index={index} /></div>)}</div>
       </div>
     </footer>

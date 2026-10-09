@@ -30,4 +30,4 @@ Required configuration will be introduced with the route, not hard-coded in this
 - `WHATSAPP_APP_SECRET` for signature verification.
 - A server-side access token and phone-number ID for outbound delivery, stored in the deployment secret manager.
 
-Outbound delivery, long-lived conversation threading, and approval receipts are still intentionally pending. This branch has a durable inbound boundary, but it is not yet a complete production WhatsApp integration.
+`lib/channels/whatsapp-client.ts` now provides the authenticated Graph API sender and refuses to send without an explicit payload. Wiring it to durable run receipts, long-lived conversation threading, and approval responses is still pending. This branch has the inbound boundary and outbound transport, but it is not yet a complete production WhatsApp integration.

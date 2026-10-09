@@ -10,25 +10,25 @@ import "../public/ink-glass.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_ORIGIN),
-  title: "Dash",
-  description: "Dash is your personal assistant. Text it a task, or let it spot what needs attention in your connected apps and offer to help.",
+  title: "Anakbuah",
+  description: "Anakbuah is your personal assistant. Chat with it in the app or WhatsApp to get things done.",
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "Dash",
-    title: "Dash | Your assistant. Less on your plate.",
-    description: "Your personal assistant for everyday tasks. Dash notices what needs attention and helps get it done.",
+    siteName: "Anakbuah",
+    title: "Anakbuah | Your assistant, wherever you chat.",
+    description: "Your personal assistant in the app and WhatsApp.",
     images: [{
       url: "/opengraph-image",
       width: 1200,
       height: 630,
-      alt: "Dash | Your assistant. Less on your plate.",
+      alt: "Anakbuah | Your assistant, wherever you chat.",
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dash | Your assistant. Less on your plate.",
-    description: "Your personal assistant for everyday tasks. Dash notices what needs attention and helps get it done.",
+    title: "Anakbuah | Your assistant, wherever you chat.",
+    description: "Your personal assistant in the app and WhatsApp.",
     images: ["/opengraph-image"],
   },
   verification: {

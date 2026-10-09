@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import { test } from "node:test";
 import { classifyAnakbuahMessage } from "../lib/channels/anakbuah-behavior";
+import { sendWhatsAppPayload } from "../lib/channels/whatsapp-client";
 import {
   buildWhatsAppApprovalMessage,
   buildWhatsAppTextMessage,
@@ -39,4 +40,16 @@ test("builds explicit text and approval payloads without sending them", () => {
   const approval = buildWhatsAppApprovalMessage("62812", "Booking ini?", "approve:1", "reject:1");
   assert.equal(approval.interactive.action.buttons[0]?.reply.id, "approve:1");
   assert.equal(approval.interactive.action.buttons[1]?.reply.title, "Tolak");
+});
+
+test("sends only through the configured WhatsApp Graph endpoint and returns provider ID", async () => {
+  let url = "";
+  let request: RequestInit | undefined;
+  const result = await sendWhatsAppPayload({ accessToken: "token", phoneNumberId: "phone-1", fetcher: async (input, init) => {
+    url = String(input); request = init;
+    return new Response(JSON.stringify({ messages: [{ id: "wamid.sent" }] }), { status: 200 });
+  } }, buildWhatsAppTextMessage("62812", "Siap."));
+  assert.equal(url, "https://graph.facebook.com/v23.0/phone-1/messages");
+  assert.equal((request?.headers as Record<string, string>).Authorization, "Bearer token");
+  assert.equal(result.providerMessageId, "wamid.sent");
 });
