@@ -109,8 +109,8 @@ test("new-account onboarding starts discovery only from the main email connectio
   assert.match(browserModel, /guard !onboardingProfileSetupOnly, authenticatedProvider == \.google \|\| onboardingGoogleConnected else/);
   assert.match(browserModel, /authenticatedData\(path: "api\/manual-scans", method: "POST", body: body\)/);
   assert.match(onboarding, /case promise, signals, notifications/);
-  assert.match(onboarding, /case \.signals: "Continue"/);
-  assert.match(onboarding, /case \.notifications: "Keep me posted"/);
+  assert.match(onboarding, /case \.signals: "Lanjutkan"/);
+  assert.match(onboarding, /case \.notifications: "Beri tahu saya"/);
   assert.match(rootView, /googleConnected: model\.onboardingGoogleConnected/);
   assert.match(rootView, /prepareSources: model\.prepareOnboardingSources/);
   assert.match(rootView, /requestNotifications: model\.requestOnboardingNotifications/);
@@ -147,7 +147,7 @@ test("three-step onboarding preserves permission gates, navigation, and existing
 test("the signed-out iPhone landing offers Google and Apple continue buttons", async () => {
   const [rootView, browserModel] = await readAll("ios/DecisionFeed/Views/RootView.swift", "ios/DecisionFeed/Web/BrowserModel.swift");
   const authenticationView = rootView.slice(rootView.indexOf("private struct AuthenticationView"), rootView.indexOf("private struct StatusOverlay"));
-  assert.match(authenticationView, /Text\("Dash"\)/);
+  assert.match(authenticationView, /Text\("Anakbuah"\)/);
   assert.match(authenticationView, /Text\("Continue with Google"\)/);
   assert.match(authenticationView, /Text\("Continue with Apple"\)/);
   assert.match(authenticationView, /Image\(systemName: "apple\.logo"\)/);
@@ -380,11 +380,10 @@ test("imports explicitly selected local Chrome sessions into the persistent Brow
   assert.match(controller, /Network\.setCookies/);
 });
 
-test("the public web links to the waitlist while email account registration stays disabled", async () => {
+test("the public web links to the waitlist while authenticated web workspaces stay available", async () => {
   const [page, landingSource, registerRoute, scan] = await readAll("app/page.tsx", "app/landing.tsx", "app/api/auth/register/route.ts", "app/api/scan/route.ts");
   const landing = landingSource.replace(/\/\*[\s\S]*?\*\//g, "");
-  assert.match(page, /DecisionFeed-iOS/);
-  assert.match(page, /if \(!isNativeApp \|\| !email\) return <Landing/);
+  assert.match(page, /if \(!email\) return <Landing/);
   assert.match(landing, /Join the waitlist/);
   assert.match(landing, /href="\/waitlist"/);
   assert.doesNotMatch(landing, /testflight\.apple\.com/);
@@ -923,7 +922,7 @@ test("the native sign-in handoff sheet isolates cookies and hands them to the pa
   assert.match(signInSheet, /removeData\(ofTypes: WKWebsiteDataStore\.allWebsiteDataTypes\(\), modifiedSince: \.distantPast\)/);
   assert.match(signInSheet, /decisionHandler\(scheme == "https" \|\| scheme == "about" \? \.allow : \.cancel\)/);
   assert.match(signInSheet, /"name": cookie\.name,[\s\S]*?"value": cookie\.value,[\s\S]*?"domain": cookie\.domain,[\s\S]*?"path": cookie\.path,[\s\S]*?"secure": cookie\.isSecure,[\s\S]*?"httpOnly": cookie\.isHTTPOnly,[\s\S]*?"expires": expires,[\s\S]*?"sameSite": sameSite/);
-  assert.match(signInSheet, /Text\("Sign in here\. Dash continues after\."\)/);
+  assert.match(signInSheet, /Text\("Login aman di sini\. Anakbuah melanjutkan setelahnya\."\)/);
   assert.match(signInSheet, /\.background\(BrandColor\.canvas/);
   assert.match(signInSheet, /\.interactiveDismissDisabled\(\)/);
   assert.doesNotMatch(signInSheet, /print\(|Logger|os_log|UserDefaults/);
