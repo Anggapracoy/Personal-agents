@@ -16,10 +16,10 @@ const emptyWorkspaceState: WorkspaceStateData = {
 const defaultWorkspacePreferences: WorkspacePreferences = {
   appearance: "system",
   modelSettings: {
-    provider: "meta",
-    modelId: "muse-spark-1.3",
+    provider: "google",
+    modelId: "gemini-3.7-flash",
     reasoningEffort: "medium",
-    defaultVersion: 3,
+    defaultVersion: 4,
   },
 };
 

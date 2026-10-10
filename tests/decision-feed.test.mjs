@@ -1134,7 +1134,7 @@ test("Settings keeps personal preferences while model controls are not exposed i
   assert.doesNotMatch(you, /<dialog|role="dialog"|aria-modal|ConnectionsModal|settings-panel/);
   assert.equal((you.match(/className="wd-you-row/g) ?? []).length > 10, true);
   for (const name of ["GPT-5.6 Sol", "GPT-5.6 Terra", "GPT-5.6 Luna", "Fable 5", "Opus 5", "Sonnet 5", "Haiku 4.5"]) assert.match(model, new RegExp(`name: "${name.replace(".", "\\.")}"`));
-  assert.match(model, /defaultModelSettings: ModelSettings = \{ provider: "meta", modelId: "muse-spark-1\.3", reasoningEffort: "medium" \}/);
+  assert.match(model, /defaultModelSettings: ModelSettings = \{ provider: "google", modelId: "gemini-3\.7-flash", reasoningEffort: "medium" \}/);
   assert.match(runsRoute, /modelProvider/);
   assert.match(runsRoute, /preparedContext = Promise\.all\(\[/);
   assert.match(runsRoute, /timeHarnessOperation\("context.model_settings", \(\) => getAgentModelSettings\(\)\)/);

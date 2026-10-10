@@ -10,7 +10,7 @@ import { existingDecisionContextFromWorkspace } from "../lib/discovery/existing-
 import { browserTimeZone, responseError } from "./native-bridge";
 
 type ReasoningEffort = WorkspaceReasoningEffort;
-export type ModelSettings = { provider: "anthropic" | "openai" | "meta"; modelId: string; reasoningEffort: ReasoningEffort };
+export type ModelSettings = { provider: "anthropic" | "openai" | "meta" | "google"; modelId: string; reasoningEffort: ReasoningEffort };
 export type StoredModelSettings = Partial<ModelSettings> & { defaultVersion?: number };
 export type WorkspaceStateResponse = {
   exists?: boolean;
@@ -58,6 +58,7 @@ export type CalendarDayEvent = {
 export type ModelOption = Pick<ModelSettings, "provider" | "modelId"> & { name: string; description: string };
 
 export const modelOptions: ModelOption[] = [
+  { provider: "google", modelId: "gemini-3.7-flash", name: "Gemini Flash", description: "Free tier available through Google AI Studio; usage limits apply" },
   { provider: "meta", modelId: "muse-spark-1.3", name: "Muse Spark 1.3", description: "Long-running agent work with efficient tool use" },
   { provider: "openai", modelId: "gpt-5.6-sol", name: "GPT-5.6 Sol", description: "Deep reasoning and complex agent work" },
   { provider: "openai", modelId: "gpt-5.6-terra", name: "GPT-5.6 Terra", description: "Balanced intelligence, speed, and cost" },
@@ -68,8 +69,8 @@ export const modelOptions: ModelOption[] = [
   { provider: "anthropic", modelId: "claude-haiku-4-5-20251001", name: "Haiku 4.5", description: "Fast, economical reasoning" },
 ];
 
-export const defaultModelSettings: ModelSettings = { provider: "meta", modelId: "muse-spark-1.3", reasoningEffort: "medium" };
-export const modelDefaultVersion = 3;
+export const defaultModelSettings: ModelSettings = { provider: "google", modelId: "gemini-3.7-flash", reasoningEffort: "medium" };
+export const modelDefaultVersion = 4;
 
 export function lifeLabel(value: string) {
   return value === "life_admin" ? "Life admin" : value.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
@@ -385,7 +386,8 @@ export function mergeWorkspaceState(local: WorkspaceStateData, remote: Workspace
 }
 
 export function supportedModelSettings(parsed: StoredModelSettings): ModelSettings | null {
-  if ((parsed.provider !== "anthropic" && parsed.provider !== "openai" && parsed.provider !== "meta") || typeof parsed.modelId !== "string" || !parsed.modelId.trim()) return null;
+  if ((parsed.provider !== "anthropic" && parsed.provider !== "openai" && parsed.provider !== "meta" && parsed.provider !== "google") || typeof parsed.modelId !== "string" || !parsed.modelId.trim()) return null;
+  if (parsed.defaultVersion !== modelDefaultVersion && parsed.provider === "meta" && parsed.modelId === "muse-spark-1.3") return { ...defaultModelSettings };
   if (parsed.defaultVersion !== modelDefaultVersion && parsed.provider === "openai" && ["gpt-5.6-terra", "gpt-5.6-luna"].includes(parsed.modelId)) return { ...defaultModelSettings };
   const migratedModelId = parsed.modelId === "claude-sonnet-4-5"
     ? "claude-sonnet-5"

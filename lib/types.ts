@@ -177,7 +177,7 @@ export type HistoryEntry = {
 export type WorkspaceAppearance = "system" | "light" | "dark";
 export type WorkspaceReasoningEffort = "low" | "medium" | "high" | "xhigh";
 export type WorkspaceModelSettings = {
-  provider: "anthropic" | "openai" | "meta";
+  provider: "anthropic" | "openai" | "meta" | "google";
   modelId: string;
   reasoningEffort: WorkspaceReasoningEffort;
   defaultVersion?: number;

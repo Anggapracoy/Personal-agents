@@ -39,6 +39,7 @@ import { persistPauseClosingMessages } from "../pauses/closing-message";
 import { schedulingInstructions } from "../schedules/tools";
 import type { ScheduleExecution, CheckResult } from "../schedules/store";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { dashAnthropicModel } from "./anthropic-model";
 import { storedOpenAIModel } from "./stored-openai";
 import { runtimeContextOptions } from "./prompt-cache-layout";
@@ -336,14 +337,14 @@ export function assembleRuntimePrompt(context: {
 
 export const runtimeEnvironmentGuidance = "You have access to a Browserless cloud browser.";
 
-export type ModelProvider = "anthropic" | "openai" | "meta";
+export type ModelProvider = "anthropic" | "openai" | "meta" | "google";
 export type ReasoningEffort = "low" | "medium" | "high" | "xhigh";
 type BrowserRuntime = "browserless";
 
 export function resolveModelSelection(run: { metadata: Record<string, unknown> }) {
-  const provider: ModelProvider = run.metadata.modelProvider === "openai" ? "openai" : run.metadata.modelProvider === "anthropic" ? "anthropic" : "meta";
-  const fallback = provider === "meta" ? "muse-spark-1.3" : provider === "openai" ? (process.env.OPENAI_AGENT_MODEL ?? "gpt-5.6-sol") : (process.env.ANTHROPIC_AGENT_MODEL ?? "claude-sonnet-5");
   const requested = typeof run.metadata.modelId === "string" ? run.metadata.modelId.trim() : "";
+  const provider: ModelProvider = run.metadata.modelProvider === "openai" ? "openai" : run.metadata.modelProvider === "anthropic" ? "anthropic" : run.metadata.modelProvider === "google" ? "google" : run.metadata.modelProvider === "meta" ? "meta" : requested.startsWith("gemini-") ? "google" : requested.startsWith("claude-") ? "anthropic" : requested.startsWith("gpt-") ? "openai" : requested === "muse-spark-1.3" ? "meta" : "google";
+  const fallback = provider === "meta" ? "muse-spark-1.3" : provider === "google" ? "gemini-3.7-flash" : provider === "openai" ? (process.env.OPENAI_AGENT_MODEL ?? "gpt-5.6-sol") : (process.env.ANTHROPIC_AGENT_MODEL ?? "claude-sonnet-5");
   const modelId = requested && /^[A-Za-z0-9._:-]{2,100}$/.test(requested) ? requested : fallback;
   return { provider, modelId };
 }
@@ -358,6 +359,12 @@ export function resolveRunOptions(run: { metadata: Record<string, unknown> }) {
 function languageModel(run: { metadata: Record<string, unknown> }) {
   const selected = resolveModelSelection(run);
   const runOptions = resolveRunOptions(run);
+  if (selected.provider === "google") {
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? process.env.GOOGLE_API_KEY;
+    if (!apiKey) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not configured. No action was executed.");
+    const google = createGoogleGenerativeAI({ apiKey });
+    return { ...selected, ...runOptions, model: google(selected.modelId) };
+  }
   if (selected.provider === "meta") {
     if (!process.env.META_API_KEY) throw new Error("META_API_KEY is not configured. No action was executed.");
     const meta = createOpenAICompatible({ name: "meta", baseURL: "https://api.meta.ai/v1", apiKey: process.env.META_API_KEY, includeUsage: true });
@@ -396,6 +403,10 @@ export function cacheableInstructions(selected: { provider: ModelProvider; model
 
 export function modelProviderOptions(selected: { provider: ModelProvider; modelId: string; reasoningEffort: ReasoningEffort; fastMode?: boolean }, stage: OpenAIRequestStage, userId: string): ProviderOptions {
   if (selected.provider === "meta") return { meta: { reasoningEffort: selected.reasoningEffort } };
+  if (selected.provider === "google") return { google: {
+    thinkingConfig: { thinkingLevel: selected.reasoningEffort === "low" ? "low" : "medium", includeThoughts: false },
+    structuredOutputs: true,
+  } } as ProviderOptions;
   if (selected.provider === "openai") {
     const promptCache = supportsExplicitPromptCaching(selected)
       ? {

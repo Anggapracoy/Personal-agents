@@ -4,9 +4,9 @@ import { defaultModelSettings, modelDefaultVersion, supportedModelSettings } fro
 import { resolveModelSelection, modelProviderOptions } from '../lib/harness/model';
 import { compactModelMessages } from '../lib/harness/context-compaction';
 
-test('new runs and old default preferences select Muse, while explicit current choices survive', () => {
-  assert.deepEqual(resolveModelSelection({metadata: {}}), {provider: 'meta', modelId: 'muse-spark-1.3'});
-  assert.equal(defaultModelSettings.modelId, 'muse-spark-1.3');
+test('new runs and old default preferences select Gemini, while explicit current choices survive', () => {
+  assert.deepEqual(resolveModelSelection({metadata: {}}), {provider: 'google', modelId: 'gemini-3.7-flash'});
+  assert.equal(defaultModelSettings.modelId, 'gemini-3.7-flash');
   for (const modelId of ['gpt-5.6-terra', 'gpt-5.6-luna']) {
     assert.deepEqual(supportedModelSettings({provider:'openai', modelId, defaultVersion:2}), defaultModelSettings);
     assert.equal(supportedModelSettings({provider:'openai', modelId, defaultVersion:modelDefaultVersion})?.modelId, modelId);

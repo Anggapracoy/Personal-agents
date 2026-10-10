@@ -8,7 +8,7 @@ import type { WorkspacePreferences, WorkspaceStateData } from "../../../../lib/t
 const preferencesSchema = z.object({
   appearance: z.enum(["system", "light", "dark"]),
   modelSettings: z.object({
-    provider: z.enum(["anthropic", "openai", "meta"]),
+    provider: z.enum(["anthropic", "openai", "meta", "google"]),
     modelId: z.string().trim().min(1).max(120),
     reasoningEffort: z.enum(["low", "medium", "high", "xhigh"]),
     defaultVersion: z.number().int().min(0).max(100).optional(),

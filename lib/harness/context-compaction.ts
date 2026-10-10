@@ -55,7 +55,7 @@ export function replayModelMessages(rows: AgentMessage[]): ModelMessage[] {
 }
 
 /** Only shorten model input. Never delete the durable transcript or action audit. */
-export function compactModelMessages(messages: ModelMessage[], provider: "openai" | "anthropic" | "meta"): ModelMessage[] {
+export function compactModelMessages(messages: ModelMessage[], provider: "openai" | "anthropic" | "meta" | "google"): ModelMessage[] {
   if (provider !== "openai") {
     // An OpenAI checkpoint cannot replace another provider's conversation history.
     return messages.flatMap((message): ModelMessage[] => {
